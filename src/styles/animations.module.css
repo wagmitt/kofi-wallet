@@ -1,0 +1,22 @@
+.backgroundTransition {
+  --easing: cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: opacity 500ms var(--easing);
+}
+
+.container {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+}
+
+.gradientLight {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, var(--light-from), var(--light-to));
+}
+
+.gradientDark {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, var(--dark-from), var(--dark-to));
+}

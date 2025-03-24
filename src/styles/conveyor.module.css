@@ -1,0 +1,36 @@
+.container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 8rem;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.02) 40%,
+    rgba(0, 0, 0, 0.02) 60%,
+    transparent 100%
+  );
+  z-index: 0;
+}
+
+.token {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.token img {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}

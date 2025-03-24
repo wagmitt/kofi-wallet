@@ -1,0 +1,32 @@
+<svg width="432" height="320" viewBox="0 0 432 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="432" height="320" rx="24" fill="#091216"/>
+<rect width="432" height="320" rx="24" fill="url(#paint0_radial_659_72)" fill-opacity="0.8"/>
+<g opacity="0.02">
+<circle cx="135.014" cy="82.9185" r="58.3631" fill="white"/>
+<circle cx="300.908" cy="27.3647" r="25.7639" fill="white"/>
+<circle cx="290.541" cy="212.95" r="78.0804" fill="white"/>
+<circle cx="119.434" cy="265.766" r="52.7327" fill="white"/>
+</g>
+<circle cx="165.485" cy="34.8457" r="2.23832" fill="#BAFE54"/>
+<circle cx="331.754" cy="76.8692" r="2.23832" fill="#BAFE54"/>
+<circle cx="368.56" cy="193.029" r="2.23832" fill="#BAFE54"/>
+<circle cx="74.4131" cy="146.633" r="2.23832" fill="#BAFE54"/>
+<circle cx="290.541" cy="275.255" r="2.23832" fill="#BAFE54"/>
+<circle cx="364.766" cy="125.707" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="339.891" cy="120.732" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="119.503" cy="66.0401" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="288.44" cy="39.3853" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="245.976" cy="57.9509" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="219.929" cy="26.1196" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="161.766" cy="261.595" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="199.141" cy="292.576" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="145.994" cy="256.126" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="330.984" cy="249.487" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<circle cx="62.7158" cy="98.4275" r="1.11916" fill="#00FFC4" fill-opacity="0.7"/>
+<defs>
+<radialGradient id="paint0_radial_659_72" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(221.85 469.63) rotate(-90) scale(517.926 420.834)">
+<stop stop-color="#00FF91"/>
+<stop offset="1" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>
