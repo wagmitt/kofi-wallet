@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { SendHorizontal, Download, MoreVertical, Home, Ticket } from 'lucide-react';
+import { SendHorizontal, Download, MoreVertical, Home, Ticket, Coffee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { QRScanner } from '@/components/QRScanner';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { SendModal } from '@/components/SendModal';
 import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
 import { LoginView } from '@/components/LoginView';
+import { useRouter } from 'next/navigation';
 
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
@@ -21,6 +21,7 @@ export default function WalletPage() {
   const { account } = useWallet();
   const { balances, refetch, kofiTransactions, isLoadingKofi } = useUserData();
   const { toast } = useToast();
+  const router = useRouter();
 
   // If no account is connected, show login view
   if (!account) {
@@ -124,15 +125,15 @@ export default function WalletPage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Balance and Actions Section */}
-        <div className="px-4">
+        <div className="px-4 py-12">
           {/* Balance Section */}
-          <div className="text-center mb-8">
-            <p className="text-text-secondary mb-2">Personal · KOFI</p>
-            <h1 className="text-3xl font-bold text-text-primary mb-4">☕️{formattedKofiBalance}</h1>
+          <div className="text-center mb-16">
+            <p className="text-text-secondary mb-2 -ml-2">Your Balance</p>
+            <h1 className="text-3xl font-bold text-text-primary mb-4">{formattedKofiBalance} ☕️</h1>
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-4 ">
             <div className="flex flex-col items-center">
               <Button
                 variant="ghost"
@@ -166,7 +167,7 @@ export default function WalletPage() {
         </div>
 
         {/* Transactions List */}
-        <div className="flex-1 bg-background-secondary border-t border-border-alpha-light">
+        <div className="flex-1 bg-background-secondary border-t border-border-alpha-light rounded-t-2xl">
           <div className="p-4 space-y-4">
             {isLoadingKofi ? (
               <div className="flex items-center justify-center py-8">
@@ -204,6 +205,14 @@ export default function WalletPage() {
           <Button variant="ghost" className="flex flex-col items-center text-text-tertiary">
             <Home className="h-6 w-6 mb-1" />
             <span className="text-xs">Home</span>
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/order')}
+            className="flex flex-col items-center text-text-secondary"
+          >
+            <Coffee className="h-6 w-6 mb-1" />
+            <span className="text-xs">Order</span>
           </Button>
           <Button variant="ghost" className="flex flex-col items-center text-text-secondary">
             <Ticket className="h-6 w-6 mb-1" />

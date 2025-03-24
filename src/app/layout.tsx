@@ -81,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" href="/background-circles.svg" as="image" type="image/svg+xml" />
       </head>
       <Providers>
-        <body className={inter.className}>
+        <body className={`${inter.className} bg-background-primary`}>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col relative">
               <main className="flex-1 bg-transparent">{children}</main>
