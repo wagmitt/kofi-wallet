@@ -18,6 +18,7 @@ export function Providers({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <AptosWalletAdapterProvider
         autoConnect={true}
+        optInWallets={['Continue with Google']}
         dappConfig={{ network: NETWORK as Network, aptosApiKey: APTOS_API_KEY }}
         onError={error => {
           toast({

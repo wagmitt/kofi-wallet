@@ -2,34 +2,30 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
-import { Wallet } from '@/components/Wallet';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  SendHorizontal,
-  Download,
-  MoreVertical,
-  Home,
-  Ticket,
-  AlertCircle,
-  ScanLine,
-} from 'lucide-react';
+import { SendHorizontal, Download, MoreVertical, Home, Ticket } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { QRScanner } from '@/components/QRScanner';
+import { ReceiveModal } from '@/components/ReceiveModal';
+import { SendModal } from '@/components/SendModal';
+import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
+import { LoginView } from '@/components/LoginView';
 
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
-  const [recipientAddress, setRecipientAddress] = useState('');
-  const [amount, setAmount] = useState('');
-  const [amountError, setAmountError] = useState('');
-  const [addressError, setAddressError] = useState('');
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { account } = useWallet();
   const { balances, refetch, kofiTransactions, isLoadingKofi } = useUserData();
   const { toast } = useToast();
+
+  // If no account is connected, show login view
+  if (!account) {
+    return <LoginView />;
+  }
 
   // Format Kofi balance for display
   const formattedKofiBalance = balances.kofi ? balances.kofi : '0.00';
@@ -79,46 +75,6 @@ export default function WalletPage() {
     return `${months[date.getMonth()]} ${date.getDate()}, ${timeString}`;
   };
 
-  // Handle amount input with proper formatting
-  const handleAmountChange = (value: string) => {
-    setAmountError('');
-    // Remove any non-digit and non-decimal characters
-    const cleanValue = value.replace(/[^0-9.]/g, '');
-
-    // Only allow one decimal point
-    const parts = cleanValue.split('.');
-    if (parts.length > 2) {
-      setAmountError('Invalid number format');
-      return;
-    }
-
-    // Limit to 2 decimal places
-    if (parts[1] && parts[1].length > 2) {
-      parts[1] = parts[1].slice(0, 2);
-      setAmount(parts.join('.'));
-    } else {
-      setAmount(cleanValue);
-    }
-
-    // Validate amount against balance
-    if (cleanValue && balances.kofi) {
-      const inputAmount = Number(cleanValue);
-      const balance = Number(balances.kofi);
-      if (inputAmount > balance) {
-        setAmountError('Insufficient balance');
-      }
-    }
-  };
-
-  // Handle address input
-  const handleAddressChange = (value: string) => {
-    setAddressError('');
-    if (value && !/^0x[a-fA-F0-9]{64}$/.test(value)) {
-      setAddressError('Invalid address format');
-    }
-    setRecipientAddress(value);
-  };
-
   // Convert input amount to blockchain format (multiply by 10^8)
   const getBlockchainAmount = (inputAmount: string): string => {
     try {
@@ -132,8 +88,8 @@ export default function WalletPage() {
   };
 
   // Handle send transaction
-  const handleSend = async () => {
-    if (!account?.address || !recipientAddress || !amount) return;
+  const handleSend = async (recipientAddress: string, amount: string) => {
+    if (!account?.address) return;
 
     try {
       setIsLoading(true);
@@ -146,8 +102,6 @@ export default function WalletPage() {
       });
       refetch();
       setShowSendForm(false);
-      setRecipientAddress('');
-      setAmount('');
     } catch (error) {
       console.error('Send transaction error:', error);
       toast({
@@ -160,24 +114,11 @@ export default function WalletPage() {
     }
   };
 
-  // Add QR scanner handler
-  const handleQRScan = (result: string) => {
-    if (result.startsWith('0x') && result.length === 66) {
-      setRecipientAddress(result);
-    } else {
-      toast({
-        variant: 'error',
-        title: 'Invalid QR Code',
-        description: 'The scanned QR code is not a valid Aptos address.',
-      });
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-background-primary">
       {/* Top Bar */}
       <div className="flex items-center px-4 py-3">
-        <Wallet />
+        <ConnectWithGoogle />
       </div>
 
       {/* Main Content */}
@@ -205,6 +146,7 @@ export default function WalletPage() {
             <div className="flex flex-col items-center">
               <Button
                 variant="ghost"
+                onClick={() => setShowReceiveModal(true)}
                 className="h-12 w-12 rounded-full bg-background-secondary border border-border-alpha-light"
               >
                 <Download className="h-5 w-5 text-text-tertiary" />
@@ -270,111 +212,31 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {/* Send Form Modal */}
-      {showSendForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
-          <Card className="bg-background-secondary w-full max-w-md border-border-alpha-light">
-            <CardContent className="pt-4">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-base font-semibold text-text-primary">Send KOFI</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowSendForm(false);
-                      setRecipientAddress('');
-                      setAmount('');
-                      setAmountError('');
-                      setAddressError('');
-                    }}
-                    className="text-text-secondary h-7 px-2 rounded-full text-xs"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs text-text-secondary block">Recipient Address</label>
-                  <div className="relative w-full">
-                    <div className="flex items-center gap-2 w-full">
-                      <Input
-                        value={recipientAddress}
-                        onChange={e => handleAddressChange(e.target.value)}
-                        placeholder="Enter recipient's address"
-                        className="bg-background-input w-full border-border-alpha-light rounded-full h-8 text-sm text-text-primary text-center placeholder:text-center p-2"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowQRScanner(true)}
-                        className="h-8 w-8 p-0 rounded-full bg-background-input border border-border-alpha-light"
-                      >
-                        <ScanLine className="h-4 w-4 text-text-tertiary" />
-                      </Button>
-                    </div>
-                    {addressError && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <AlertCircle className="h-3 w-3 text-red-500" />
-                        <p className="text-xs text-red-500">{addressError}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs text-text-secondary block">Amount (KOFI)</label>
-                  <div>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        inputMode="decimal"
-                        value={amount}
-                        onChange={e => handleAmountChange(e.target.value)}
-                        placeholder="0.00"
-                        className="bg-background-input border-border-alpha-light rounded-full pr-8 h-8 text-sm text-text-primary text-center placeholder:text-center p-2"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary">
-                        ☕️
-                      </span>
-                    </div>
-                    {amountError && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <AlertCircle className="h-3 w-3 text-red-500" />
-                        <p className="text-xs text-red-500">{amountError}</p>
-                      </div>
-                    )}
-                    {balances.kofi && !amountError && (
-                      <p className="text-xs text-text-secondary mt-1">Balance: ☕️{balances.kofi}</p>
-                    )}
-                  </div>
-                </div>
-
-                <Button
-                  onClick={handleSend}
-                  disabled={
-                    isLoading ||
-                    !recipientAddress ||
-                    !amount ||
-                    Number(amount) === 0 ||
-                    !!amountError ||
-                    !!addressError
-                  }
-                  className="w-full bg-button-primary hover:bg-opacity-90 text-text-dark rounded-full h-8 text-sm mt-2"
-                >
-                  {isLoading ? 'Sending...' : 'Send KOFI'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Add QR Scanner Component */}
+      {/* QR Scanner Component */}
       <QRScanner
         isOpen={showQRScanner}
         onClose={() => setShowQRScanner(false)}
-        onScan={handleQRScan}
+        onScan={result => {
+          if (result.startsWith('0x') && result.length === 66) {
+            setShowQRScanner(false);
+          }
+        }}
+      />
+
+      {/* Send Modal */}
+      <SendModal
+        isOpen={showSendForm}
+        onClose={() => setShowSendForm(false)}
+        onSend={handleSend}
+        balance={balances.kofi || '0'}
+        isLoading={isLoading}
+      />
+
+      {/* Receive Modal */}
+      <ReceiveModal
+        isOpen={showReceiveModal}
+        onClose={() => setShowReceiveModal(false)}
+        address={account.address}
       />
     </div>
   );

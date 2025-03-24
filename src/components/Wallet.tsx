@@ -47,7 +47,8 @@ export function Wallet() {
   };
 
   const availableWallets = wallets.filter(wallet => wallet.readyState === 'Installed');
-  const installableWallets = wallets.filter(wallet => wallet.readyState === 'NotDetected');
+  console.log('🚀 | Wallet | availableWallets:', availableWallets);
+  // const installableWallets = wallets.filter(wallet => wallet.readyState === 'NotDetected');
 
   // Wallet connection dialog
   const WalletConnectionDialog = () => (
@@ -55,14 +56,12 @@ export function Wallet() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button className="bg-[linear-gradient(hsla(85,54%,53%,1)_0%,hsla(85,77%,41%,1)_100%)] w-full hover:bg-button-primary text-black border border-border-alpha-light rounded-full px-4 h-[40px]">
-            Connect Wallet
+            Sign In
           </Button>
         </DialogTrigger>
         <DialogContent className="max-h-screen overflow-auto bg-background-primary border border-border-alpha-light">
           <DialogHeader className="flex flex-col items-center">
-            <DialogTitle className="text-2xl font-vcr text-text-primary mb-6">
-              Connect Wallet
-            </DialogTitle>
+            <DialogTitle className="text-2xl font-vcr text-text-primary mb-6">Sign In</DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col gap-3">
@@ -87,26 +86,6 @@ export function Wallet() {
                   className="rounded-full"
                 />
                 <span className="font-vcr">{wallet.name}</span>
-              </Button>
-            ))}
-
-            {installableWallets.map(wallet => (
-              <Button
-                key={wallet.name}
-                onClick={() => window.open(wallet.url, '_blank')}
-                className="flex items-center gap-3 w-full bg-semantic-neutral-alpha hover:bg-button-primary text-text-primary border border-border-alpha-light rounded-lg px-4 py-6 justify-start"
-              >
-                <Image
-                  src={wallet.icon}
-                  alt={wallet.name}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-                <div className="flex flex-col items-start">
-                  <span className="font-vcr">{wallet.name}</span>
-                  <span className="text-sm text-text-secondary">Not installed</span>
-                </div>
               </Button>
             ))}
           </div>

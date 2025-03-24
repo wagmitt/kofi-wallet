@@ -41,9 +41,6 @@ export function WalletDropdown({
             }}
           >
             <div className="flex items-center gap-3">
-              <Image src="/apt-icon.svg" alt="APT" width={24} height={24} />
-              <span>{getFormattedBalance('apt')} APT</span>
-              <span className="w-px h-[20px] bg-border-alpha-light" />
               <span>
                 {account?.ansName
                   ? `${account.ansName}.apt`
