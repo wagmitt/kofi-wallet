@@ -3,20 +3,14 @@
 import { useWallet, WalletName } from '@aptos-labs/wallet-adapter-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { useCallback } from 'react';
-
-import { useUserData } from '@/context/UserDataContext';
-import { formatTokenAmount, fromOctas } from '@/lib/utils/currencyConversion';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from './ui/dropdown-menu';
-import { Copy, LogOut, ChevronsUpDown } from 'lucide-react';
+import { LogOut, ChevronsUpDown } from 'lucide-react';
 import { truncateAddress } from '@aptos-labs/wallet-adapter-react';
 
 const googleWallet = {
@@ -267,30 +261,6 @@ const googleWallet = {
 
 export function ConnectWithGoogle() {
   const { account, connected, disconnect, connect } = useWallet();
-  const { balances, isLoading } = useUserData();
-  const { toast } = useToast();
-
-  const copyAddress = useCallback(async () => {
-    if (!account?.address) return;
-    try {
-      await navigator.clipboard.writeText(account.address);
-      toast({
-        title: 'Success',
-        description: 'Copied wallet address to clipboard.',
-      });
-    } catch {
-      toast({
-        variant: 'error',
-        title: 'Error',
-        description: 'Failed to copy wallet address.',
-      });
-    }
-  }, [account?.address, toast]);
-
-  const getFormattedBalance = (tokenType: keyof typeof balances) => {
-    if (isLoading || !balances[tokenType]) return '--';
-    return formatTokenAmount(fromOctas(balances[tokenType]!));
-  };
 
   // Wallet connection dialog
   const WalletConnectionDialog = () => (

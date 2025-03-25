@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -23,12 +22,7 @@ type WalletDropdownProps = {
   disconnect: () => void;
 };
 
-export function WalletDropdown({
-  account,
-  getFormattedBalance,
-  copyAddress,
-  disconnect,
-}: WalletDropdownProps) {
+export function WalletDropdown({ account, copyAddress, disconnect }: WalletDropdownProps) {
   return (
     <div className="relative z-[10]">
       <DropdownMenu>

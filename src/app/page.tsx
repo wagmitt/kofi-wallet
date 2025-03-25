@@ -6,7 +6,6 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
 import { SendHorizontal, Download, MoreVertical, Home, Ticket, Coffee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { QRScanner } from '@/components/QRScanner';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { SendModal } from '@/components/SendModal';
 import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
@@ -15,7 +14,6 @@ import { useRouter } from 'next/navigation';
 
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
-  const [showQRScanner, setShowQRScanner] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { account } = useWallet();
@@ -220,17 +218,6 @@ export default function WalletPage() {
           </Button>
         </div>
       </div>
-
-      {/* QR Scanner Component */}
-      <QRScanner
-        isOpen={showQRScanner}
-        onClose={() => setShowQRScanner(false)}
-        onScan={result => {
-          if (result.startsWith('0x') && result.length === 66) {
-            setShowQRScanner(false);
-          }
-        }}
-      />
 
       {/* Send Modal */}
       <SendModal
