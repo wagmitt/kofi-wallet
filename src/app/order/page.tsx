@@ -13,70 +13,199 @@ type MenuItem = {
   name: string;
   description: string;
   price: number;
-  image: string;
-  category: 'drinks' | 'food' | 'desserts';
+  category: 'signature' | 'coffee' | 'non-coffee' | 'cocoa-milk' | 'soda' | 'soft-drinks';
 };
 
 // Cart item type
 type CartItem = MenuItem & { quantity: number };
 
-// Sample menu data
+// Menu data
 const menuItems: MenuItem[] = [
+  // Signature Drinks
   {
-    id: 'cappuccino',
-    name: 'Cappuccino',
-    description: 'Espresso with steamed milk and foam',
-    price: 3.5,
-    image: '/images/cappuccino.jpg', // You can add actual images later
-    category: 'drinks',
+    id: 'dirty',
+    name: 'Dirty',
+    description: 'Espresso with milk',
+    price: 2000,
+    category: 'signature',
+  },
+  {
+    id: 'espresso-yen',
+    name: 'Espresso-Yen (Thai Style)',
+    description: 'Thai-style espresso with condensed milk',
+    price: 2000,
+    category: 'signature',
+  },
+  {
+    id: 'espresso-tonic',
+    name: 'Espresso Tonic',
+    description: 'Espresso with tonic water',
+    price: 2000,
+    category: 'signature',
+  },
+  {
+    id: 'espresso-kek-huai',
+    name: 'Espresso Kek-Huai',
+    description: 'Specialty espresso drink',
+    price: 2000,
+    category: 'signature',
+  },
+  {
+    id: 'caramel-latte',
+    name: 'Caramel Latte',
+    description: 'Espresso with steamed milk and caramel',
+    price: 2000,
+    category: 'signature',
+  },
+  {
+    id: 'mocha-caramel-latte',
+    name: 'Mocha Caramel Latte',
+    description: 'Espresso with chocolate, caramel and steamed milk',
+    price: 2000,
+    category: 'signature',
+  },
+
+  // Coffee
+  {
+    id: 'espresso',
+    name: 'Espresso',
+    description: 'Strong coffee brewed by forcing steam through ground coffee beans',
+    price: 2000,
+    category: 'coffee',
+  },
+  {
+    id: 'americano',
+    name: 'Americano',
+    description: 'Espresso diluted with hot water',
+    price: 2000,
+    category: 'coffee',
   },
   {
     id: 'latte',
     name: 'Latte',
     description: 'Espresso with steamed milk',
-    price: 4.0,
-    image: '/images/latte.jpg',
-    category: 'drinks',
+    price: 2000,
+    category: 'coffee',
   },
   {
-    id: 'espresso',
-    name: 'Espresso',
-    description: 'Strong coffee brewed by forcing steam through ground coffee beans',
-    price: 2.5,
-    image: '/images/espresso.jpg',
-    category: 'drinks',
+    id: 'cappuccino',
+    name: 'Cappuccino',
+    description: 'Espresso with steamed milk and foam',
+    price: 2000,
+    category: 'coffee',
   },
   {
-    id: 'croissant',
-    name: 'Croissant',
-    description: 'Flaky, buttery pastry',
-    price: 2.0,
-    image: '/images/croissant.jpg',
-    category: 'food',
+    id: 'mocha',
+    name: 'Mocha',
+    description: 'Espresso with chocolate and steamed milk',
+    price: 2000,
+    category: 'coffee',
+  },
+
+  // Non-Coffee
+  {
+    id: 'thai-milk-tea',
+    name: 'Thai Milk Tea',
+    description: 'Sweet tea with milk',
+    price: 2000,
+    category: 'non-coffee',
   },
   {
-    id: 'avocado-toast',
-    name: 'Avocado Toast',
-    description: 'Mashed avocado spread on toast with seasonings',
-    price: 6.0,
-    image: '/images/avocado-toast.jpg',
-    category: 'food',
+    id: 'thai-black-tea',
+    name: 'Thai Black Tea',
+    description: 'Traditional Thai black tea',
+    price: 2000,
+    category: 'non-coffee',
   },
   {
-    id: 'chocolate-cake',
-    name: 'Chocolate Cake',
-    description: 'Rich, moist chocolate cake slice',
-    price: 5.0,
-    image: '/images/chocolate-cake.jpg',
-    category: 'desserts',
+    id: 'honey-lemon-tea',
+    name: 'Honey Lemon Tea',
+    description: 'Tea with honey and lemon',
+    price: 2000,
+    category: 'non-coffee',
   },
   {
-    id: 'cheesecake',
-    name: 'Cheesecake',
-    description: 'Creamy, sweet dessert with graham cracker crust',
-    price: 5.5,
-    image: '/images/cheesecake.jpg',
-    category: 'desserts',
+    id: 'cocoa-thai-milk-tea',
+    name: 'Cocoa Thai Milk Tea',
+    description: 'Thai milk tea with cocoa',
+    price: 2000,
+    category: 'non-coffee',
+  },
+
+  // Cocoa & Milk
+  {
+    id: 'cocoa-with-milk',
+    name: 'Cocoa with Milk',
+    description: 'Chocolate drink with milk',
+    price: 2000,
+    category: 'cocoa-milk',
+  },
+  {
+    id: 'cocoa-caramel',
+    name: 'Cocoa Caramel',
+    description: 'Chocolate drink with caramel',
+    price: 2000,
+    category: 'cocoa-milk',
+  },
+  {
+    id: 'cocoa-honey',
+    name: 'Cocoa Honey',
+    description: 'Chocolate drink with honey',
+    price: 2000,
+    category: 'cocoa-milk',
+  },
+  {
+    id: 'honey-milk',
+    name: 'Honey Milk',
+    description: 'Sweet milk with honey',
+    price: 2000,
+    category: 'cocoa-milk',
+  },
+
+  // Soda
+  {
+    id: 'honey-lemon-soda',
+    name: 'Honey Lemon Soda',
+    description: 'Refreshing lemon soda with honey',
+    price: 2000,
+    category: 'soda',
+  },
+  {
+    id: 'espresso-soda',
+    name: 'Espresso Soda',
+    description: 'Espresso with soda water',
+    price: 2000,
+    category: 'soda',
+  },
+  {
+    id: 'yuzu-soda',
+    name: 'Yuzu Soda',
+    description: 'Refreshing yuzu-flavored soda',
+    price: 2000,
+    category: 'soda',
+  },
+
+  // Soft Drinks
+  {
+    id: 'coke-zero',
+    name: 'Coke Zero',
+    description: 'Sugar-free cola',
+    price: 2000,
+    category: 'soft-drinks',
+  },
+  {
+    id: 'soda-water',
+    name: 'Soda Water',
+    description: 'Plain carbonated water',
+    price: 2000,
+    category: 'soft-drinks',
+  },
+  {
+    id: 'mineral-water',
+    name: 'Mineral Water from Chiang Dao, Thailand',
+    description: 'Natural mineral water',
+    price: 2000,
+    category: 'soft-drinks',
   },
 ];
 
@@ -98,9 +227,12 @@ export default function OrderPage() {
   }
 
   // Group menu items by category
-  const drinks = menuItems.filter(item => item.category === 'drinks');
-  const food = menuItems.filter(item => item.category === 'food');
-  const desserts = menuItems.filter(item => item.category === 'desserts');
+  const signature = menuItems.filter(item => item.category === 'signature');
+  const coffee = menuItems.filter(item => item.category === 'coffee');
+  const nonCoffee = menuItems.filter(item => item.category === 'non-coffee');
+  const cocoaMilk = menuItems.filter(item => item.category === 'cocoa-milk');
+  const soda = menuItems.filter(item => item.category === 'soda');
+  const softDrinks = menuItems.filter(item => item.category === 'soft-drinks');
 
   // Add item to cart
   const addToCart = (item: MenuItem) => {
@@ -155,22 +287,10 @@ export default function OrderPage() {
         key={item.id}
         className="flex justify-between items-center px-4 py-3 border-b border-border-alpha-light"
       >
-        <div className="flex items-center flex-1">
-          {/* Image Container */}
-          <div className="w-14 h-14 bg-background-secondary rounded-lg mr-3 overflow-hidden flex items-center justify-center">
-            {item.image ? (
-              <img src={item.image} alt={item.name} className="object-cover w-full h-full" />
-            ) : (
-              <Coffee className="h-6 w-6 text-text-secondary opacity-50" />
-            )}
-          </div>
-
-          {/* Text Content */}
-          <div className="flex-1 pr-4">
-            <h3 className="font-medium text-text-primary">{item.name}</h3>
-            <p className="text-xs text-text-shallow line-clamp-1">{item.description}</p>
-            <p className="mt-1 font-medium text-sm text-text-tertiary">{formatPrice(item.price)}</p>
-          </div>
+        <div className="flex-1">
+          <h3 className="font-medium text-text-primary">{item.name}</h3>
+          <p className="text-xs text-text-shallow line-clamp-1">{item.description}</p>
+          <p className="mt-1 font-medium text-sm text-text-tertiary">{formatPrice(item.price)}</p>
         </div>
 
         <div>
@@ -217,9 +337,9 @@ export default function OrderPage() {
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background-primary border-b border-border-alpha-light">
         <div className="flex items-center">
           <Button variant="ghost" onClick={() => router.push('/')} className="p-1 mr-2">
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-text-primary" />
           </Button>
-          <h1 className="text-lg font-semibold">Kofi Cafe</h1>
+          <h1 className="text-lg font-semibold text-text-primary">Kofi Cafe</h1>
         </div>
         <div className="flex items-center">
           <Button variant="ghost" className="relative p-1" onClick={goToCheckout}>
@@ -235,40 +355,70 @@ export default function OrderPage() {
 
       {/* Menu Items */}
       <div className="flex-1 overflow-y-auto">
-        {/* Drinks Section */}
+        {/* Signature Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Drinks
+              Signature
             </h2>
           </div>
-          <div>{drinks.map(renderMenuItem)}</div>
+          <div>{signature.map(renderMenuItem)}</div>
         </div>
 
-        {/* Food Section */}
+        {/* Coffee Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Food
+              Coffee
             </h2>
           </div>
-          <div>{food.map(renderMenuItem)}</div>
+          <div>{coffee.map(renderMenuItem)}</div>
         </div>
 
-        {/* Desserts Section */}
+        {/* Non-Coffee Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Desserts
+              Non-Coffee
             </h2>
           </div>
-          <div>{desserts.map(renderMenuItem)}</div>
+          <div>{nonCoffee.map(renderMenuItem)}</div>
+        </div>
+
+        {/* Cocoa & Milk Section */}
+        <div className="mb-4">
+          <div className="px-4 py-2 bg-background-secondary">
+            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
+              Cocoa & Milk
+            </h2>
+          </div>
+          <div>{cocoaMilk.map(renderMenuItem)}</div>
+        </div>
+
+        {/* Soda Section */}
+        <div className="mb-4">
+          <div className="px-4 py-2 bg-background-secondary">
+            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
+              Soda
+            </h2>
+          </div>
+          <div>{soda.map(renderMenuItem)}</div>
+        </div>
+
+        {/* Soft Drinks Section */}
+        <div className="mb-4">
+          <div className="px-4 py-2 bg-background-secondary">
+            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
+              Soft Drinks
+            </h2>
+          </div>
+          <div>{softDrinks.map(renderMenuItem)}</div>
         </div>
       </div>
 
       {/* Cart Summary & Checkout Button */}
       {cart.length > 0 && (
-        <div className="sticky bottom-16 left-0 right-0 bg-background-primary border-t border-border-alpha-light px-4 py-3">
+        <div className="sticky bottom-[68px] left-0 right-0 bg-background-primary border-t border-border-alpha-light px-4 py-3">
           <Button
             onClick={goToCheckout}
             className="w-full py-5 text-base rounded-xl bg-button-primary text-text-dark hover:bg-opacity-90"

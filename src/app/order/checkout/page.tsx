@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
   const router = useRouter();
   const { account } = useWallet();
   const { balances, refetch } = useUserData();
@@ -44,6 +45,12 @@ export default function CheckoutPage() {
       setTotalPrice(parseFloat(savedTotalPrice));
     }
   }, []);
+
+  // Check if user has enough balance whenever balances or totalPrice changes
+  useEffect(() => {
+    const kofiBalance = parseFloat(balances.kofi || '0');
+    setHasInsufficientBalance(kofiBalance < totalPrice);
+  }, [balances, totalPrice]);
 
   // If no account is connected, show login view
   if (!account) {
@@ -112,10 +119,14 @@ export default function CheckoutPage() {
       {/* Top Bar */}
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background-primary border-b border-border-alpha-light">
         <div className="flex items-center">
-          <Button variant="ghost" onClick={() => router.back()} className="p-1 mr-2">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="p-1 mr-2 text-text-primary hover:text-text-tertiary"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">Checkout</h1>
+          <h1 className="text-lg font-semibold text-text-primary">Checkout</h1>
         </div>
       </div>
 
@@ -123,8 +134,8 @@ export default function CheckoutPage() {
       <div className="flex-1 p-4">
         {isSuccess ? (
           <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <div className="h-16 w-16 rounded-full bg-green-500 flex items-center justify-center">
-              <Check className="h-10 w-10 text-white" />
+            <div className="h-16 w-16 rounded-full bg-button-primary flex items-center justify-center">
+              <Check className="h-10 w-10 text-text-dark" />
             </div>
             <h2 className="text-xl font-semibold text-text-primary">Order Successful!</h2>
             <p className="text-text-secondary text-center">
@@ -137,7 +148,7 @@ export default function CheckoutPage() {
               <h2 className="text-lg font-semibold text-text-primary">Order Summary</h2>
 
               {/* Order Items */}
-              <Card>
+              <Card className="bg-background-component-primary border-border-alpha-light">
                 <CardContent className="p-4 space-y-3">
                   {cart.map(item => (
                     <div key={item.id} className="flex justify-between">
@@ -147,7 +158,7 @@ export default function CheckoutPage() {
                         </p>
                         <p className="text-sm text-text-secondary">{item.description}</p>
                       </div>
-                      <p className="font-medium text-text-primary">
+                      <p className="font-medium text-text-tertiary">
                         {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
@@ -156,32 +167,39 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Payment Summary */}
-              <Card>
+              <Card className="bg-background-component-primary border-border-alpha-light">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex justify-between">
                     <p className="text-text-secondary">Subtotal</p>
-                    <p className="text-text-primary">{formatPrice(totalPrice)}</p>
+                    <p className="text-text-tertiary">{formatPrice(totalPrice)}</p>
                   </div>
                   <div className="flex justify-between">
                     <p className="text-text-secondary">Service Fee</p>
-                    <p className="text-text-primary">{formatPrice(0.0)}</p>
+                    <p className="text-text-tertiary">{formatPrice(0.0)}</p>
                   </div>
                   <div className="border-t border-border-alpha-light my-2"></div>
                   <div className="flex justify-between font-semibold">
                     <p className="text-text-primary">Total</p>
-                    <p className="text-text-primary">{formatPrice(totalPrice)}</p>
+                    <p className="text-text-tertiary">{formatPrice(totalPrice)}</p>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Current Balance */}
-              <div className="bg-background-secondary p-4 rounded-md">
+              <div className="bg-background-secondary p-4 rounded-md border border-border-alpha-subtle">
                 <div className="flex justify-between">
                   <p className="text-text-secondary">Your Balance</p>
-                  <p className="text-text-primary">
+                  <p
+                    className={`${hasInsufficientBalance ? 'text-red-500' : 'text-text-tertiary'}`}
+                  >
                     {formatPrice(parseFloat(balances.kofi || '0'))}
                   </p>
                 </div>
+                {hasInsufficientBalance && (
+                  <p className="text-red-500 text-sm mt-2">
+                    Insufficient balance to complete this order
+                  </p>
+                )}
               </div>
             </div>
 
@@ -189,14 +207,20 @@ export default function CheckoutPage() {
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-background-primary border-t border-border-alpha-light">
               <Button
                 onClick={processOrder}
-                className="w-full py-6 text-base"
-                disabled={isLoading || cart.length === 0}
+                className={`w-full py-6 text-base ${
+                  hasInsufficientBalance
+                    ? 'bg-gray-600 cursor-not-allowed'
+                    : 'bg-button-primary hover:bg-opacity-90'
+                } text-text-dark`}
+                disabled={isLoading || cart.length === 0 || hasInsufficientBalance}
               >
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="h-4 w-4 border-2 border-text-dark border-t-transparent rounded-full animate-spin" />
                     <span>Processing...</span>
                   </div>
+                ) : hasInsufficientBalance ? (
+                  `Insufficient Balance`
                 ) : (
                   `Pay ${formatPrice(totalPrice)}`
                 )}

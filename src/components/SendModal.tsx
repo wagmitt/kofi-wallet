@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { AlertCircle, ScanLine } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { QRScanner } from '@/components/QRScanner';
 
 interface SendModalProps {
   isOpen: boolean;
@@ -164,6 +165,13 @@ export function SendModal({ isOpen, onClose, onSend, balance, isLoading }: SendM
           </Button>
         </div>
       </DialogContent>
+
+      {/* QR Scanner Component */}
+      <QRScanner
+        isOpen={showQRScanner}
+        onClose={() => setShowQRScanner(false)}
+        onScan={handleQRScan}
+      />
     </Dialog>
   );
 }
