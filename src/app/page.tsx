@@ -11,7 +11,7 @@ import { SendModal } from '@/components/SendModal';
 import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
 import { LoginView } from '@/components/LoginView';
 import { useRouter } from 'next/navigation';
-
+import { BottomNav } from '@/components/BottomNav';
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
@@ -114,9 +114,9 @@ export default function WalletPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background-primary">
+    <div className="flex flex-col min-h-screen bg-background-primary relative overflow-hidden">
       {/* Top Bar */}
-      <div className="flex items-center px-4 py-3">
+      <div className="flex items-center px-4 py-3 relative z-10">
         <ConnectWithGoogle />
       </div>
 
@@ -198,26 +198,7 @@ export default function WalletPage() {
       </div>
 
       {/* Bottom Navigation - Sticky */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background-secondary border-t border-border-alpha-light">
-        <div className="flex justify-around py-4 px-6">
-          <Button variant="ghost" className="flex flex-col items-center text-text-tertiary">
-            <Home className="h-6 w-6 mb-1" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/order')}
-            className="flex flex-col items-center text-text-secondary"
-          >
-            <Coffee className="h-6 w-6 mb-1" />
-            <span className="text-xs">Order</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center text-text-secondary">
-            <Ticket className="h-6 w-6 mb-1" />
-            <span className="text-xs">Lottery</span>
-          </Button>
-        </div>
-      </div>
+      <BottomNav />
 
       {/* Send Modal */}
       <SendModal

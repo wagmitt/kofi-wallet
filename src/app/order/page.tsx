@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Minus, ShoppingCart, ArrowLeft, Home, Coffee, Ticket } from 'lucide-react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { LoginView } from '@/components/LoginView';
+import { BottomNav } from '@/components/BottomNav';
 
 // Menu item type
 type MenuItem = {
@@ -13,7 +14,7 @@ type MenuItem = {
   name: string;
   description: string;
   price: number;
-  category: 'signature' | 'coffee' | 'non-coffee' | 'cocoa-milk' | 'soda' | 'soft-drinks';
+  category: 'tea' | 'coffee' | 'matcha' | 'cold-brew';
 };
 
 // Cart item type
@@ -23,53 +24,9 @@ type CartItem = MenuItem & { quantity: number };
 const menuItems: MenuItem[] = [
   // Signature Drinks
   {
-    id: 'dirty',
-    name: 'Dirty',
-    description: 'Espresso with milk',
-    price: 2000,
-    category: 'signature',
-  },
-  {
-    id: 'espresso-yen',
-    name: 'Espresso-Yen (Thai Style)',
-    description: 'Thai-style espresso with condensed milk',
-    price: 2000,
-    category: 'signature',
-  },
-  {
-    id: 'espresso-tonic',
-    name: 'Espresso Tonic',
-    description: 'Espresso with tonic water',
-    price: 2000,
-    category: 'signature',
-  },
-  {
-    id: 'espresso-kek-huai',
-    name: 'Espresso Kek-Huai',
-    description: 'Specialty espresso drink',
-    price: 2000,
-    category: 'signature',
-  },
-  {
-    id: 'caramel-latte',
-    name: 'Caramel Latte',
-    description: 'Espresso with steamed milk and caramel',
-    price: 2000,
-    category: 'signature',
-  },
-  {
-    id: 'mocha-caramel-latte',
-    name: 'Mocha Caramel Latte',
-    description: 'Espresso with chocolate, caramel and steamed milk',
-    price: 2000,
-    category: 'signature',
-  },
-
-  // Coffee
-  {
-    id: 'espresso',
-    name: 'Espresso',
-    description: 'Strong coffee brewed by forcing steam through ground coffee beans',
+    id: 'latte',
+    name: 'Latte',
+    description: 'Espresso with steamed milk',
     price: 2000,
     category: 'coffee',
   },
@@ -80,132 +37,64 @@ const menuItems: MenuItem[] = [
     price: 2000,
     category: 'coffee',
   },
-  {
-    id: 'latte',
-    name: 'Latte',
-    description: 'Espresso with steamed milk',
-    price: 2000,
-    category: 'coffee',
-  },
-  {
-    id: 'cappuccino',
-    name: 'Cappuccino',
-    description: 'Espresso with steamed milk and foam',
-    price: 2000,
-    category: 'coffee',
-  },
-  {
-    id: 'mocha',
-    name: 'Mocha',
-    description: 'Espresso with chocolate and steamed milk',
-    price: 2000,
-    category: 'coffee',
-  },
 
-  // Non-Coffee
+  // Tea
   {
     id: 'thai-milk-tea',
     name: 'Thai Milk Tea',
     description: 'Sweet tea with milk',
     price: 2000,
-    category: 'non-coffee',
-  },
-  {
-    id: 'thai-black-tea',
-    name: 'Thai Black Tea',
-    description: 'Traditional Thai black tea',
-    price: 2000,
-    category: 'non-coffee',
-  },
-  {
-    id: 'honey-lemon-tea',
-    name: 'Honey Lemon Tea',
-    description: 'Tea with honey and lemon',
-    price: 2000,
-    category: 'non-coffee',
-  },
-  {
-    id: 'cocoa-thai-milk-tea',
-    name: 'Cocoa Thai Milk Tea',
-    description: 'Thai milk tea with cocoa',
-    price: 2000,
-    category: 'non-coffee',
+    category: 'tea',
   },
 
-  // Cocoa & Milk
+  // Matcha
   {
-    id: 'cocoa-with-milk',
-    name: 'Cocoa with Milk',
-    description: 'Chocolate drink with milk',
+    id: 'clear-matcha',
+    name: 'Clear Matcha お抹茶',
+    description:
+      'fresh whisked hoshino matcha pour over water without sweetness — light and refreshing.',
     price: 2000,
-    category: 'cocoa-milk',
+    category: 'matcha',
   },
   {
-    id: 'cocoa-caramel',
-    name: 'Cocoa Caramel',
-    description: 'Chocolate drink with caramel',
+    id: 'matcha-oat-latte',
+    name: 'Matcha Oat Latte 抹茶オーツラテ',
+    description:
+      'fresh whisked hoshino matcha pour over oat milk without sweetness — rich and smooth.',
     price: 2000,
-    category: 'cocoa-milk',
+    category: 'matcha',
   },
   {
-    id: 'cocoa-honey',
-    name: 'Cocoa Honey',
-    description: 'Chocolate drink with honey',
+    id: 'coconut-matcha',
+    name: 'Coconut Matcha ココナッツ抹茶',
+    description:
+      'fresh whisked hoshino matcha pour over fresh organic coconut water - sweet and refreshing.',
     price: 2000,
-    category: 'cocoa-milk',
+    category: 'matcha',
   },
   {
-    id: 'honey-milk',
-    name: 'Honey Milk',
-    description: 'Sweet milk with honey',
+    id: 'coconut-matcha-cloud',
+    name: 'Coconut Matcha Cloud ココナッツ抹茶雲',
+    description:
+      'whipped coconut matcha cream on top of fresh organic coconut water — aromatic and creamy.',
     price: 2000,
-    category: 'cocoa-milk',
-  },
-
-  // Soda
-  {
-    id: 'honey-lemon-soda',
-    name: 'Honey Lemon Soda',
-    description: 'Refreshing lemon soda with honey',
-    price: 2000,
-    category: 'soda',
-  },
-  {
-    id: 'espresso-soda',
-    name: 'Espresso Soda',
-    description: 'Espresso with soda water',
-    price: 2000,
-    category: 'soda',
-  },
-  {
-    id: 'yuzu-soda',
-    name: 'Yuzu Soda',
-    description: 'Refreshing yuzu-flavored soda',
-    price: 2000,
-    category: 'soda',
+    category: 'matcha',
   },
 
-  // Soft Drinks
+  // Cold Brew
   {
-    id: 'coke-zero',
-    name: 'Coke Zero',
-    description: 'Sugar-free cola',
+    id: 'mizudashi-okuyame-matcha',
+    name: 'Mizudashi Okuyame Matcha',
+    description: '',
     price: 2000,
-    category: 'soft-drinks',
+    category: 'cold-brew',
   },
   {
-    id: 'soda-water',
-    name: 'Soda Water',
-    description: 'Plain carbonated water',
+    id: 'mizudashi-okuyame-sencha',
+    name: 'Mizudashi Okuyame Sencha',
+    description: '',
     price: 2000,
-    category: 'soft-drinks',
-  },
-  {
-    id: 'mineral-water',
-    name: 'Mineral Water from Chiang Dao, Thailand',
-    description: 'Natural mineral water',
-    price: 2000,
-    category: 'soft-drinks',
+    category: 'cold-brew',
   },
 ];
 
@@ -227,12 +116,10 @@ export default function OrderPage() {
   }
 
   // Group menu items by category
-  const signature = menuItems.filter(item => item.category === 'signature');
   const coffee = menuItems.filter(item => item.category === 'coffee');
-  const nonCoffee = menuItems.filter(item => item.category === 'non-coffee');
-  const cocoaMilk = menuItems.filter(item => item.category === 'cocoa-milk');
-  const soda = menuItems.filter(item => item.category === 'soda');
-  const softDrinks = menuItems.filter(item => item.category === 'soft-drinks');
+  const tea = menuItems.filter(item => item.category === 'tea');
+  const matcha = menuItems.filter(item => item.category === 'matcha');
+  const coldBrew = menuItems.filter(item => item.category === 'cold-brew');
 
   // Add item to cart
   const addToCart = (item: MenuItem) => {
@@ -355,16 +242,6 @@ export default function OrderPage() {
 
       {/* Menu Items */}
       <div className="flex-1 overflow-y-auto">
-        {/* Signature Section */}
-        <div className="mb-4">
-          <div className="px-4 py-2 bg-background-secondary">
-            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Signature
-            </h2>
-          </div>
-          <div>{signature.map(renderMenuItem)}</div>
-        </div>
-
         {/* Coffee Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
@@ -375,44 +252,34 @@ export default function OrderPage() {
           <div>{coffee.map(renderMenuItem)}</div>
         </div>
 
-        {/* Non-Coffee Section */}
+        {/* Tea Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Non-Coffee
+              Tea
             </h2>
           </div>
-          <div>{nonCoffee.map(renderMenuItem)}</div>
+          <div>{tea.map(renderMenuItem)}</div>
         </div>
 
-        {/* Cocoa & Milk Section */}
+        {/* Matcha Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Cocoa & Milk
+              Matcha
             </h2>
           </div>
-          <div>{cocoaMilk.map(renderMenuItem)}</div>
+          <div>{matcha.map(renderMenuItem)}</div>
         </div>
 
-        {/* Soda Section */}
+        {/* Cold Brew Section */}
         <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Soda
+              Cold Brew
             </h2>
           </div>
-          <div>{soda.map(renderMenuItem)}</div>
-        </div>
-
-        {/* Soft Drinks Section */}
-        <div className="mb-4">
-          <div className="px-4 py-2 bg-background-secondary">
-            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
-              Soft Drinks
-            </h2>
-          </div>
-          <div>{softDrinks.map(renderMenuItem)}</div>
+          <div>{coldBrew.map(renderMenuItem)}</div>
         </div>
       </div>
 
@@ -429,27 +296,7 @@ export default function OrderPage() {
         </div>
       )}
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background-secondary border-t border-border-alpha-light">
-        <div className="flex justify-around py-4 px-6">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/')}
-            className="flex flex-col items-center text-text-secondary"
-          >
-            <Home className="h-6 w-6 mb-1" />
-            <span className="text-xs">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center text-text-tertiary">
-            <Coffee className="h-6 w-6 mb-1" />
-            <span className="text-xs">Order</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center text-text-secondary">
-            <Ticket className="h-6 w-6 mb-1" />
-            <span className="text-xs">Lottery</span>
-          </Button>
-        </div>
-      </div>
+      <BottomNav />
     </div>
   );
 }

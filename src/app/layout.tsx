@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/Providers';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster as Sonner } from 'sonner';
 
 // Use a subset of the font to reduce size
 const inter = Inter({
@@ -76,9 +77,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect to critical domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-
-        {/* Preload critical assets */}
-        <link rel="preload" href="/background-circles.svg" as="image" type="image/svg+xml" />
       </head>
       <Providers>
         <body className={`${inter.className} bg-background-primary`}>
@@ -87,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <main className="flex-1 bg-transparent">{children}</main>
             </div>
             <Toaster />
+            <Sonner position="top-center" richColors />
           </TooltipProvider>
         </body>
       </Providers>
