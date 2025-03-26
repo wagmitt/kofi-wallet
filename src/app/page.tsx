@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
-import { SendHorizontal, Download, MoreVertical, Home, Ticket, Coffee } from 'lucide-react';
+import { SendHorizontal, Download, MoreVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { SendModal } from '@/components/SendModal';
 import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
 import { LoginView } from '@/components/LoginView';
-import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/BottomNav';
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
@@ -19,7 +18,6 @@ export default function WalletPage() {
   const { account } = useWallet();
   const { balances, refetch, kofiTransactions, isLoadingKofi } = useUserData();
   const { toast } = useToast();
-  const router = useRouter();
 
   // If no account is connected, show login view
   if (!account) {

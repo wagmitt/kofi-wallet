@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, ShoppingCart, ArrowLeft, Home, Coffee, Ticket } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { LoginView } from '@/components/LoginView';
 import { BottomNav } from '@/components/BottomNav';
