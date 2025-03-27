@@ -18,7 +18,7 @@ export function useTransactions() {
             setError(null);
 
             try {
-                const data = await fetchAssetInfo(account.address, KOFI_TOKEN_ADDRESS);
+                const data = await fetchAssetInfo(account.address.toString(), KOFI_TOKEN_ADDRESS);
                 setTransactions(data.transactions);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to fetch transactions');

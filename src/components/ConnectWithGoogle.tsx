@@ -308,7 +308,7 @@ export function ConnectWithGoogle() {
               <span>
                 {account?.ansName
                   ? `${account.ansName}.apt`
-                  : truncateAddress(account?.address) || 'Unknown'}
+                  : truncateAddress(account?.address.toString()) || 'Unknown'}
               </span>
             </div>
             <ChevronsUpDown className="h-4 w-4 text-icon-secondary" />

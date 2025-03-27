@@ -47,7 +47,6 @@ export function Wallet() {
   };
 
   const availableWallets = wallets.filter(wallet => wallet.readyState === 'Installed');
-  console.log('🚀 | Wallet | availableWallets:', availableWallets);
   // const installableWallets = wallets.filter(wallet => wallet.readyState === 'NotDetected');
 
   // Wallet connection dialog

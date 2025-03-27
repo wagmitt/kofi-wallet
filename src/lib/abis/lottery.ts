@@ -1,23 +1,8 @@
 const KOFI_LOTTERY_ABI = {
-  "address": "0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52",
+  "address": "0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110",
   "name": "lottery",
-  "friends": [
-    "0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::gateway"
-  ],
+  "friends": [],
   "exposed_functions": [
-    {
-      "name": "get_user_tickets",
-      "visibility": "public",
-      "is_entry": false,
-      "is_view": true,
-      "generic_type_params": [],
-      "params": [
-        "address"
-      ],
-      "return": [
-        "u64"
-      ]
-    },
     {
       "name": "add_tickets",
       "visibility": "friend",
@@ -25,6 +10,19 @@ const KOFI_LOTTERY_ABI = {
       "is_view": false,
       "generic_type_params": [],
       "params": [
+        "address",
+        "u64"
+      ],
+      "return": []
+    },
+    {
+      "name": "admin_add_tickets",
+      "visibility": "public",
+      "is_entry": true,
+      "is_view": false,
+      "generic_type_params": [],
+      "params": [
+        "&signer",
         "address",
         "u64"
       ],
@@ -39,6 +37,36 @@ const KOFI_LOTTERY_ABI = {
       "params": [
         "&signer",
         "u64",
+        "u64",
+        "0x1::object::Object<0x1::fungible_asset::Metadata>"
+      ],
+      "return": []
+    },
+    {
+      "name": "create_new_pot_with_coin",
+      "visibility": "public",
+      "is_entry": true,
+      "is_view": false,
+      "generic_type_params": [
+        {
+          "constraints": []
+        }
+      ],
+      "params": [
+        "&signer",
+        "u64",
+        "u64"
+      ],
+      "return": []
+    },
+    {
+      "name": "emergency_delete_pot",
+      "visibility": "public",
+      "is_entry": true,
+      "is_view": false,
+      "generic_type_params": [],
+      "params": [
+        "&signer",
         "u64"
       ],
       "return": []
@@ -53,7 +81,7 @@ const KOFI_LOTTERY_ABI = {
         "u64"
       ],
       "return": [
-        "vector<0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::PayoutConfig>"
+        "vector<0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::PayoutConfig>"
       ]
     },
     {
@@ -66,11 +94,24 @@ const KOFI_LOTTERY_ABI = {
         "u64"
       ],
       "return": [
-        "0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::Pot"
+        "0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::Pot"
       ]
     },
     {
       "name": "get_total_pot",
+      "visibility": "public",
+      "is_entry": false,
+      "is_view": true,
+      "generic_type_params": [],
+      "params": [
+        "address"
+      ],
+      "return": [
+        "u64"
+      ]
+    },
+    {
+      "name": "get_user_tickets",
       "visibility": "public",
       "is_entry": false,
       "is_view": true,
@@ -92,19 +133,6 @@ const KOFI_LOTTERY_ABI = {
       "return": [
         "u64"
       ]
-    },
-    {
-      "name": "spin",
-      "visibility": "private",
-      "is_entry": true,
-      "is_view": false,
-      "generic_type_params": [],
-      "params": [
-        "&signer",
-        "u64",
-        "u64"
-      ],
-      "return": []
     },
     {
       "name": "spin_and_payout",
@@ -132,7 +160,7 @@ const KOFI_LOTTERY_ABI = {
       "fields": [
         {
           "name": "pots",
-          "type": "0x1::table::Table<u64, 0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::Pot>"
+          "type": "0x1::table::Table<u64, 0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::Pot>"
         },
         {
           "name": "next_pot_id",
@@ -216,7 +244,7 @@ const KOFI_LOTTERY_ABI = {
       "fields": [
         {
           "name": "config",
-          "type": "0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::PotConfig"
+          "type": "0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::PotConfig"
         },
         {
           "name": "deposit_amount",
@@ -225,6 +253,10 @@ const KOFI_LOTTERY_ABI = {
         {
           "name": "remaining_deposit",
           "type": "u64"
+        },
+        {
+          "name": "token_metadata",
+          "type": "0x1::object::Object<0x1::fungible_asset::Metadata>"
         }
       ]
     },
@@ -249,7 +281,7 @@ const KOFI_LOTTERY_ABI = {
         },
         {
           "name": "payouts",
-          "type": "vector<0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::PayoutConfig>"
+          "type": "vector<0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::PayoutConfig>"
         }
       ]
     },
@@ -277,7 +309,11 @@ const KOFI_LOTTERY_ABI = {
         },
         {
           "name": "payouts",
-          "type": "vector<0x42d3d74c53601215495bff2346890198713f7df3758e165018474b04055a2d52::lottery::PayoutConfig>"
+          "type": "vector<0xc063a48762b57f8c392f9b88dd0190c0075894fc7f6637d01ddfb513be55f110::lottery::PayoutConfig>"
+        },
+        {
+          "name": "token_metadata",
+          "type": "0x1::object::Object<0x1::fungible_asset::Metadata>"
         }
       ]
     },

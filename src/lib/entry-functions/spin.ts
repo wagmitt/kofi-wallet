@@ -26,7 +26,7 @@ export const spin = (args?: SpinArguments): InputTransactionData => {
 
   // Convert the amount to a string with fixed precision to avoid floating point issues
   const payload = createEntryPayload(KOFI_LOTTERY_ABI, {
-    function: 'spin',
+    function: 'spin_and_payout',
     functionArguments: [potNumber, amount], // pot number
     typeArguments: [],
   });

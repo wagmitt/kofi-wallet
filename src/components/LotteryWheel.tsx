@@ -7,6 +7,7 @@ export type WheelSection = {
   percentage: number;
   color: string;
   label: string;
+  text: string;
 };
 
 interface LotteryWheelProps {
@@ -31,9 +32,6 @@ export default function LotteryWheel({
   const startTimeRef = useRef<number | null>(null);
   const speedRef = useRef(360); // degrees per second
   const targetRotationRef = useRef<number | null>(null);
-
-  console.log('LotteryWheel rendering with sections:', sections);
-  console.log('Wheel DOM element exists:', !!wheelRef.current);
 
   // Calculate rotation angles for each section with useMemo to prevent recalculations
   const sectionsWithAngles = useMemo(() => {
@@ -67,34 +65,37 @@ export default function LotteryWheel({
 
   // Handle winning amount changes - start the slowing down sequence
   useEffect(() => {
-    // Start the slowing down sequence
     const startSlowingDown = (targetRotation: number) => {
       console.log('Starting slowing down sequence to', targetRotation);
 
-      // Cancel any existing animation
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
       }
 
-      const totalAnimationTime = 5000; // 5 seconds total for slowing down and stopping
+      const totalAnimationTime = 8000; // 8 seconds for smooth deceleration
       const startTime = performance.now();
       const startRotation = rotationRef.current;
+      const startSpeed = Math.max(speedRef.current, 360); // Ensure minimum speed before slowing
       const rotationDifference = targetRotation - startRotation;
 
-      console.log('Starting from:', startRotation, 'Need to rotate by:', rotationDifference);
-
-      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+      // Enhanced easing function for smoother deceleration
+      const easeOutQuart = (t: number) => {
+        const t1 = t - 1;
+        return 1 - t1 * t1 * t1 * t1;
+      };
 
       const animate = (time: number) => {
         const elapsed = time - startTime;
         const progress = Math.min(elapsed / totalAnimationTime, 1);
-        const easedProgress = easeOutCubic(progress);
+        const easedProgress = easeOutQuart(progress);
 
-        // Calculate new rotation with easing
+        // Gradually reduce speed with a minimum threshold
+        speedRef.current = Math.max(startSpeed * (1 - easedProgress), 10);
+
+        // Calculate new rotation with enhanced easing
         rotationRef.current = startRotation + rotationDifference * easedProgress;
 
-        // Apply rotation to the wheel
         if (wheelRef.current) {
           wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
         }
@@ -102,12 +103,13 @@ export default function LotteryWheel({
         if (progress < 1) {
           animationRef.current = requestAnimationFrame(animate);
         } else {
-          // Animation complete
           console.log('Slowing down complete, final rotation:', rotationRef.current);
           setIsSlowing(false);
+          speedRef.current = 0;
 
-          // Call onSpinComplete with the winning section
-          const winningSection = sections.find(section => section.label === winningAmount);
+          const winningSection = sections.find(
+            section => Number(section.label) === Number(winningAmount)
+          );
           if (winningSection) {
             onSpinComplete(winningSection);
           }
@@ -118,12 +120,17 @@ export default function LotteryWheel({
     };
 
     if (winningAmount !== null && wheelRef.current && isSpinning) {
+      console.log('🚀 | useEffect | winningAmount:', winningAmount);
+      console.log('🚀 | useEffect | sections:', sections);
       console.log('Winning amount received, planning stop sequence:', winningAmount);
 
       // Find the winning section based on the amount
-      const winningSection = sections.find(section => section.label === winningAmount);
+      const winningSection = sections.find(
+        section => parseFloat(section.label) === parseFloat(winningAmount)
+      );
 
       if (winningSection) {
+        console.log('🚀 | useEffect | winningSection:', winningSection);
         console.log('Found winning section:', winningSection);
         setIsSlowing(true);
 
@@ -134,20 +141,16 @@ export default function LotteryWheel({
 
         // Calculate how many full rotations to add for a nice effect
         const currentFullRotations = Math.floor(Math.abs(rotationRef.current) / 360);
-        const additionalRotations = 3; // Add 3 more full rotations before stopping
+        const additionalRotations = Math.max(5, currentFullRotations + 3); // Ensure at least 5 full rotations
 
-        // Calculate the final rotation
-        const targetRotation = -(
-          (currentFullRotations + additionalRotations) * 360 +
-          ((targetAngle - 270 + 360) % 360)
-        );
+        // Calculate the final rotation with added buffer
+        const targetRotation = -(additionalRotations * 360 + ((targetAngle - 270 + 360) % 360));
         targetRotationRef.current = targetRotation;
 
-        console.log('Current rotation:', rotationRef.current);
-        console.log('Target rotation:', targetRotation);
-
-        // Start the slowing down sequence
-        startSlowingDown(targetRotation);
+        // Add a small delay before starting to slow down
+        setTimeout(() => {
+          startSlowingDown(targetRotation);
+        }, 500);
       } else {
         console.warn('No matching section found for winning amount:', winningAmount);
       }
@@ -353,7 +356,7 @@ export default function LotteryWheel({
                     textShadow: index % 2 === 0 ? '0px 0px 2px rgba(0,0,0,0.8)' : 'none',
                   }}
                 >
-                  {section.label}
+                  {section.text}
                 </text>
               </g>
             );

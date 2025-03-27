@@ -42,6 +42,8 @@ const formatAmount = (amount: string): string => {
 const formatTransactionType = (type: string): string => {
   if (type.includes('::coin::WithdrawEvent')) return 'Sent';
   if (type.includes('::coin::DepositEvent')) return 'Received';
+  if (type.includes('::fungible_asset::Withdraw')) return 'Sent';
+  if (type.includes('::fungible_asset::Deposit')) return 'Received';
   return type;
 };
 
@@ -50,14 +52,10 @@ const formatTransactionType = (type: string): string => {
 export const ASSET_INFO_QUERY = `
   query AssetInfo($userAddress: String!, $assetAddress: String!) {
     transactions: fungible_asset_activities(
-      where: {
-        owner_address: { _eq: $userAddress }
-        asset_type: { _eq: $assetAddress }
-      }
-      order_by: { transaction_version: desc }
+      where: {owner_address: {_eq: $userAddress}, metadata: {symbol: {_eq: "☕"}}}
+      order_by: {transaction_version: desc}
       limit: 10
     ) {
-      transaction_version
       type
       amount
       transaction_timestamp
@@ -82,6 +80,7 @@ export async function fetchKofiBalance(userAddress: string): Promise<AssetInfoRe
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer aptoslabs_7Szss4Ys7EH_Ezk4prHWBn7yrREc9KHVZNH6zKEXyt1Kn`,
       },
       body: JSON.stringify({
         query: ASSET_INFO_QUERY,

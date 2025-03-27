@@ -64,7 +64,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
     setIsLoadingKofi(true);
     try {
-      const data = await fetchKofiBalance(account.address);
+      const data = await fetchKofiBalance(account.address.toString());
       setKofiTransactions(data.transactions);
 
       // Update Kofi balance in balances state with formatted amount
