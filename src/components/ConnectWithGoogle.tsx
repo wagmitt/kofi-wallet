@@ -1,6 +1,6 @@
 'use client';
 
-import { useWallet, WalletName } from '@aptos-labs/wallet-adapter-react';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
 
@@ -269,7 +269,7 @@ export function ConnectWithGoogle() {
         key={googleWallet.name}
         onClick={async () => {
           try {
-            await connect(googleWallet.name as WalletName);
+            connect(googleWallet.name);
           } catch (error) {
             console.error('Failed to connect:', error);
           }

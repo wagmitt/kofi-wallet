@@ -19,7 +19,7 @@ export function Providers({ children }: PropsWithChildren) {
       <AptosWalletAdapterProvider
         autoConnect={true}
         optInWallets={['Continue with Google']}
-        dappConfig={{ network: NETWORK as Network, aptosApiKey: APTOS_API_KEY }}
+        dappConfig={{ network: NETWORK as Network, aptosApiKeys: { mainnet: APTOS_API_KEY } }}
         onError={error => {
           toast({
             variant: 'error',

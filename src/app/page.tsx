@@ -211,7 +211,7 @@ export default function WalletPage() {
       <ReceiveModal
         isOpen={showReceiveModal}
         onClose={() => setShowReceiveModal(false)}
-        address={account.address}
+        address={account.address.toString()}
       />
     </div>
   );

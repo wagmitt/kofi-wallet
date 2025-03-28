@@ -10,5 +10,5 @@ export const CREATOR_ADDRESS = process.env.NEXT_PUBLIC_FA_CREATOR_ADDRESS;
 export const FA_ADDRESS = process.env.NEXT_PUBLIC_FA_ADDRESS;
 export const IS_DEV = process.env.NODE_ENV === 'development';
 export const IS_PROD = process.env.NODE_ENV === 'production';
-export const APTOS_API_KEY = process.env.NEXT_PUBLIC_APTOS_API_KEY;
+export const APTOS_API_KEY = process.env.NEXT_PUBLIC_APTOS_API_KEY || "";
 export const KOFI_LOTTERY_ADDRESS = process.env.NEXT_PUBLIC_LOTTERY_ADDRESS;

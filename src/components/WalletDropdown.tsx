@@ -9,14 +9,11 @@ import {
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 import { Copy, LogOut, ChevronsUpDown } from 'lucide-react';
-import { truncateAddress } from '@aptos-labs/wallet-adapter-react';
+import { AccountInfo, truncateAddress } from '@aptos-labs/wallet-adapter-react';
 import { TokenBalances } from '@/types';
 
 type WalletDropdownProps = {
-  account: {
-    address?: string;
-    ansName?: string | null;
-  } | null;
+  account: AccountInfo | null;
   getFormattedBalance: (tokenType: keyof TokenBalances) => string;
   copyAddress: () => Promise<void>;
   disconnect: () => void;
@@ -38,7 +35,7 @@ export function WalletDropdown({ account, copyAddress, disconnect }: WalletDropd
               <span>
                 {account?.ansName
                   ? `${account.ansName}.apt`
-                  : truncateAddress(account?.address) || 'Unknown'}
+                  : truncateAddress(account?.address.toString()) || 'Unknown'}
               </span>
             </div>
             <ChevronsUpDown className="h-4 w-4 text-icon-secondary" />
