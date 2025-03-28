@@ -146,6 +146,8 @@ export default function LotteryPage() {
 
         const result = await response.json();
 
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // wait for tx to be confirmed
         await aptos.waitForTransaction({
           transactionHash: result.transactionHash,

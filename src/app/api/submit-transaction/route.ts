@@ -14,7 +14,6 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        console.log("Received request for transaction submission");
 
         const { serializedData } = body;
 
@@ -40,7 +39,6 @@ export async function POST(req: Request) {
                 transaction
             });
 
-            console.log("Fee payer authenticator created");
 
             // Submit the transaction with both authenticators
             const result = await aptos.transaction.submit.simple({
@@ -49,7 +47,6 @@ export async function POST(req: Request) {
                 feePayerAuthenticator
             });
 
-            console.log("Transaction submitted:", result);
 
             return NextResponse.json({
                 success: true,

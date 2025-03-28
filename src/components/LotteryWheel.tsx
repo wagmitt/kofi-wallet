@@ -68,11 +68,7 @@ export default function LotteryWheel({
     const startSlowingDown = (targetRotation: number) => {
       console.log('Starting slowing down sequence to', targetRotation);
 
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-
+      // Don't cancel the animation immediately
       const totalAnimationTime = 8000; // 8 seconds for smooth deceleration
       const startTime = performance.now();
       const startRotation = rotationRef.current;
@@ -107,16 +103,24 @@ export default function LotteryWheel({
           setIsSlowing(false);
           speedRef.current = 0;
 
-          const winningSection = sections.find(
-            section => Number(section.label) === Number(winningAmount)
-          );
-          if (winningSection) {
-            onSpinComplete(winningSection);
+          if (winningAmount) {
+            const winningSection = sections.find(
+              section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
+            );
+            if (winningSection) {
+              onSpinComplete(winningSection);
+            }
           }
         }
       };
 
-      animationRef.current = requestAnimationFrame(animate);
+      // Start the slowing down animation in the next frame
+      requestAnimationFrame(() => {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
+        animationRef.current = requestAnimationFrame(animate);
+      });
     };
 
     if (winningAmount !== null && wheelRef.current && isSpinning) {
@@ -126,7 +130,7 @@ export default function LotteryWheel({
 
       // Find the winning section based on the amount
       const winningSection = sections.find(
-        section => parseFloat(section.label) === parseFloat(winningAmount)
+        section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
       );
 
       if (winningSection) {
@@ -147,10 +151,8 @@ export default function LotteryWheel({
         const targetRotation = -(additionalRotations * 360 + ((targetAngle - 270 + 360) % 360));
         targetRotationRef.current = targetRotation;
 
-        // Add a small delay before starting to slow down
-        setTimeout(() => {
-          startSlowingDown(targetRotation);
-        }, 500);
+        // Remove the delay and start slowing down immediately
+        startSlowingDown(targetRotation);
       } else {
         console.warn('No matching section found for winning amount:', winningAmount);
       }
