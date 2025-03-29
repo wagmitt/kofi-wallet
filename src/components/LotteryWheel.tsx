@@ -35,7 +35,6 @@ export default function LotteryWheel({
 
   // Calculate rotation angles for each section with useMemo to prevent recalculations
   const sectionsWithAngles = useMemo(() => {
-    console.log('Calculating section angles with sections:', sections);
     if (!sections || sections.length === 0) {
       console.warn('No sections provided to LotteryWheel');
       return [];
@@ -57,8 +56,9 @@ export default function LotteryWheel({
 
   // Handle spin button click
   const handleSpin = () => {
-    console.log('handleSpin called, isSpinning:', isSpinning);
     if (!isSpinning) {
+      // Reset wheel state only when user initiates a new spin
+      resetWheel();
       onSpinStart();
     }
   };
@@ -88,7 +88,6 @@ export default function LotteryWheel({
 
   // Reset wheel for new spin
   const resetWheel = useCallback(() => {
-    console.log('Resetting wheel state');
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
@@ -107,9 +106,7 @@ export default function LotteryWheel({
 
   // Start spinning animation
   const startSpinning = useCallback(() => {
-    console.log('Starting spinning animation');
-
-    // Reset states for new spin
+    // Only reset animation-related states
     setIsSlowing(false);
     targetRotationRef.current = null;
     speedRef.current = 360; // Reset to full speed
@@ -131,14 +128,6 @@ export default function LotteryWheel({
       startSpeed: number,
       targetRotation: number
     ) => {
-      console.log('animateSlowingDown called with:', {
-        currentRotation: rotationRef.current,
-        targetRotation,
-        startRotation,
-        time: time - startTime,
-        isSlowing,
-      });
-
       const elapsed = time - startTime;
       const progress = Math.min(elapsed / 8000, 1); // 8 seconds total animation time
       const easedProgress = 1 - Math.pow(1 - progress, 4); // easeOutQuart
@@ -150,13 +139,6 @@ export default function LotteryWheel({
       const rotationDifference = targetRotation - startRotation;
       rotationRef.current = startRotation + rotationDifference * easedProgress;
 
-      console.log('Animation progress:', {
-        progress,
-        currentRotation: rotationRef.current,
-        speed: speedRef.current,
-        isSlowing,
-      });
-
       if (wheelRef.current) {
         wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
       }
@@ -167,7 +149,6 @@ export default function LotteryWheel({
           animateSlowingDown(t, startTime, startRotation, startSpeed, targetRotation)
         );
       } else {
-        console.log('Slowing down complete, final rotation:', rotationRef.current);
         setIsSlowing(false);
         speedRef.current = 0;
         animationRef.current = null;
@@ -177,37 +158,27 @@ export default function LotteryWheel({
             section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
           );
           if (winningSection) {
+            // Just call onSpinComplete without showing a toast
             onSpinComplete(winningSection);
           }
         }
       }
     },
-    [winningAmount, sections, onSpinComplete, isSlowing]
+    [winningAmount, sections, onSpinComplete]
   );
 
   // Start slowing down sequence
   const startSlowingDown = useCallback(
     (targetRotation: number) => {
-      console.log(
-        'Starting slowing down sequence to',
-        targetRotation,
-        'current rotation:',
-        rotationRef.current
-      );
-      console.log('Current state - isSpinning:', isSpinning, 'isSlowing:', isSlowing);
-
       const startTime = performance.now();
       const startRotation = rotationRef.current;
       const startSpeed = Math.max(speedRef.current, 360);
 
       if (animationRef.current) {
-        console.log('Cancelling existing animation frame');
         cancelAnimationFrame(animationRef.current);
       }
 
-      console.log('Requesting new animation frame for slowing down');
       requestAnimationFrame(time => {
-        console.log('Animation frame callback triggered');
         animateSlowingDown(time, startTime, startRotation, startSpeed, targetRotation);
       });
     },
@@ -216,38 +187,26 @@ export default function LotteryWheel({
 
   // Handle winning amount changes
   const handleWinningAmount = useCallback(() => {
-    console.log('handleWinningAmount called with:', {
-      winningAmount,
-      isSpinning,
-      hasWheel: !!wheelRef.current,
-      sections: sections.length,
-    });
-
     if (winningAmount !== null && wheelRef.current && isSpinning) {
       const winningSection = sections.find(
         section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
       );
 
       if (winningSection) {
-        console.log('Found winning section:', winningSection);
-
         // Set slowing state before calculating target
         setIsSlowing(true);
 
         const sectionIndex = sections.indexOf(winningSection);
         const targetAngle = sectionsWithAngles[sectionIndex].midAngle;
-        console.log('Target angle:', targetAngle);
 
         const currentFullRotations = Math.floor(Math.abs(rotationRef.current) / 360);
         const additionalRotations = Math.max(5, currentFullRotations + 3);
         const targetRotation = -(additionalRotations * 360 + ((targetAngle - 270 + 360) % 360));
 
-        console.log('Calculated target rotation:', targetRotation);
         targetRotationRef.current = targetRotation;
 
         // Ensure we're calling startSlowingDown after setting the target
         setTimeout(() => {
-          console.log('Triggering slow down with target:', targetRotation);
           startSlowingDown(targetRotation);
         }, 0);
       } else {
@@ -258,11 +217,7 @@ export default function LotteryWheel({
 
   // Start spinning when isSpinning becomes true
   useEffect(() => {
-    console.log('Spin effect triggered - isSpinning:', isSpinning, 'isSlowing:', isSlowing);
-
     if (isSpinning && !isSlowing) {
-      // Only reset and start spinning if we're not in the slowing down phase
-      resetWheel(); // Reset wheel state when spinning starts
       startSpinning();
     } else if (!isSpinning) {
       if (animationRef.current) {
@@ -277,18 +232,14 @@ export default function LotteryWheel({
         animationRef.current = null;
       }
     };
-  }, [isSpinning, isSlowing, startSpinning, resetWheel]);
+  }, [isSpinning, isSlowing, startSpinning]);
 
   // Handle winning amount changes
   useEffect(() => {
-    console.log('Winning amount effect triggered');
-    if (winningAmount === null && !isSlowing) {
-      // Only reset if we're not in the slowing down phase
-      resetWheel();
-    } else if (winningAmount !== null) {
+    if (winningAmount !== null) {
       handleWinningAmount();
     }
-  }, [handleWinningAmount, winningAmount, resetWheel, isSlowing]);
+  }, [handleWinningAmount, winningAmount]);
 
   return (
     <div className="relative w-full max-w-[400px] aspect-square mx-auto">

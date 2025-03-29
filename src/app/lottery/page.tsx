@@ -9,13 +9,13 @@ import { LoginView } from '@/components/LoginView';
 import { BottomNav } from '@/components/BottomNav';
 import LotteryWheel, { WheelSection } from '@/components/LotteryWheel';
 import { spin } from '@/lib/entry-functions/spin';
-import { toast } from 'sonner';
 import { getPotStats, PotStats } from '@/lib/view-functions/getPotStats';
 import { getUserLotteryTickets } from '@/lib/view-functions/getUserLotteryTickets';
 import { aptosClient } from '@/lib/utils/aptosClient';
 import { useTransaction } from '@/hooks/useTransaction';
 import { Serializer } from '@aptos-labs/ts-sdk';
 import { getLotteryWinnings } from '@/lib/view-functions/getLotteryWinnings';
+import { useToast } from '@/hooks/use-toast';
 
 const DECIMALS = 8;
 
@@ -28,6 +28,7 @@ export default function LotteryPage() {
   const router = useRouter();
   const { account, signTransaction } = useWallet();
   const { submitTransaction } = useTransaction();
+  const { toast } = useToast();
 
   // Fetch pot stats and user tickets on mount
   useEffect(() => {
@@ -98,7 +99,11 @@ export default function LotteryPage() {
   // Handle spin start
   const handleSpinStart = async () => {
     if (!account || userTickets <= 0) {
-      toast.error('No chances left!');
+      toast({
+        variant: 'error',
+        title: 'Error',
+        description: 'No chances left!',
+      });
       return;
     }
 
@@ -117,10 +122,18 @@ export default function LotteryPage() {
         });
 
         // Sign the transaction with sender's key
-        const senderAuthenticator = await signTransaction({
-          transactionOrPayload: transaction,
-          asFeePayer: false,
-        });
+        let senderAuthenticator;
+        try {
+          senderAuthenticator = await signTransaction({
+            transactionOrPayload: transaction,
+            asFeePayer: false,
+          });
+        } catch (error) {
+          // User rejected the transaction
+          setIsSpinning(false);
+          setWinningAmount(null);
+          return;
+        }
 
         // Serialize the transaction and authenticator using BCS
         const serializer = new Serializer();
@@ -159,9 +172,6 @@ export default function LotteryPage() {
 
         // Get the actual winning amount from the transaction
         const amount = await getLotteryWinnings(result.transactionHash);
-        console.log('handleSpinStart: Winning amount:', amount);
-
-        // need to format
 
         // Set the winning amount to trigger wheel to stop at correct position
         setWinningAmount(amount);
@@ -174,23 +184,27 @@ export default function LotteryPage() {
       }
     } catch (error) {
       console.error('Error spinning:', error);
-      toast.error('Failed to spin: ' + (error instanceof Error ? error.message : String(error)));
-      // setIsSpinning(false);
+      // Reset states on error
+      setIsSpinning(false);
+      setWinningAmount(null);
+      toast({
+        variant: 'error',
+        title: 'Failed to spin',
+        description: error instanceof Error ? error.message : String(error),
+      });
     }
   };
 
   // Handle spin complete
   const handleSpinComplete = (winningSection: WheelSection) => {
-    console.log('handleSpinComplete: Spin finished, winning section:', winningSection);
     setIsSpinning(false);
 
-    // Show winning amount in toast
-    toast.success(`Congratulations! You won ${winningSection.text}!`);
-
-    // Create a timeout and reset result and winning amount
-    setTimeout(() => {
-      setWinningAmount(null);
-    }, 10000);
+    // Show winning amount in toast - only show here, not in the wheel component
+    toast({
+      variant: 'success',
+      title: 'Congratulations!',
+      description: `You won ${winningSection.text}!`,
+    });
   };
 
   // If no account is connected, show login view

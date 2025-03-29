@@ -20,7 +20,6 @@ export const getLotteryWinnings = async (transactionHash: string): Promise<strin
           event.type ===
           `${KOFI_LOTTERY_GATEWAY_ABI.address}::lottery::PayoutEvent`
       );
-      console.log("🚀 | getLotteryWinnings | payoutEvent:", payoutEvent)
 
       if (payoutEvent && 'data' in payoutEvent && 'payout_amount' in payoutEvent.data) {
         const rawAmount = payoutEvent.data.payout_amount as string;
