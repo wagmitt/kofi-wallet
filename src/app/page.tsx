@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
-import { SendHorizontal, Download, MoreVertical } from 'lucide-react';
+import { SendHorizontal, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ReceiveModal } from '@/components/ReceiveModal';
 import { SendModal } from '@/components/SendModal';
 import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
 import { LoginView } from '@/components/LoginView';
 import { BottomNav } from '@/components/BottomNav';
+import { MoreDropdown } from '@/components/MoreDropdown';
+
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
@@ -151,12 +153,7 @@ export default function WalletPage() {
               <span className="text-xs text-text-secondary mt-2">Receive</span>
             </div>
             <div className="flex flex-col items-center">
-              <Button
-                variant="ghost"
-                className="h-12 w-12 rounded-full bg-background-secondary border border-border-alpha-light"
-              >
-                <MoreVertical className="h-5 w-5 text-text-tertiary" />
-              </Button>
+              <MoreDropdown />
               <span className="text-xs text-text-secondary mt-2">More</span>
             </div>
           </div>

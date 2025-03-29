@@ -128,54 +128,54 @@ export default function LotteryPage() {
             transactionOrPayload: transaction,
             asFeePayer: false,
           });
-        } catch (error) {
+
+          // Serialize the transaction and authenticator using BCS
+          const serializer = new Serializer();
+          transaction.serialize(serializer);
+          senderAuthenticator.authenticator.serialize(serializer);
+          const serializedData = Buffer.from(serializer.toUint8Array()).toString('base64');
+
+          // Send to server for fee payer signing and submission
+          const response = await fetch('/api/submit-transaction', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              serializedData,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to submit transaction');
+          }
+
+          const result = await response.json();
+
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // wait for tx to be confirmed
+          await aptos.waitForTransaction({
+            transactionHash: result.transactionHash,
+            options: {
+              waitForIndexer: true,
+              timeoutSecs: 5,
+            },
+          });
+
+          // Get the actual winning amount from the transaction
+          const amount = await getLotteryWinnings(result.transactionHash);
+
+          // Set the winning amount to trigger wheel to stop at correct position
+          setWinningAmount(amount);
+          setUserTickets(prev => prev - 1);
+        } catch {
           // User rejected the transaction
           setIsSpinning(false);
           setWinningAmount(null);
           return;
         }
-
-        // Serialize the transaction and authenticator using BCS
-        const serializer = new Serializer();
-        transaction.serialize(serializer);
-        senderAuthenticator.authenticator.serialize(serializer);
-        const serializedData = Buffer.from(serializer.toUint8Array()).toString('base64');
-
-        // Send to server for fee payer signing and submission
-        const response = await fetch('/api/submit-transaction', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            serializedData,
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to submit transaction');
-        }
-
-        const result = await response.json();
-
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // wait for tx to be confirmed
-        await aptos.waitForTransaction({
-          transactionHash: result.transactionHash,
-          options: {
-            waitForIndexer: true,
-            timeoutSecs: 5,
-          },
-        });
-
-        // Get the actual winning amount from the transaction
-        const amount = await getLotteryWinnings(result.transactionHash);
-
-        // Set the winning amount to trigger wheel to stop at correct position
-        setWinningAmount(amount);
-        setUserTickets(prev => prev - 1);
       } else {
         console.log('Using direct wallet submission');
         const transaction = spin({ potNumber: 1, amount: 1 });
