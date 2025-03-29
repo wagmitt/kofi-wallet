@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { QrReader, OnResultFunction } from 'react-qr-reader';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, Camera } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface QRScannerProps {
   isOpen: boolean;
@@ -11,14 +12,48 @@ interface QRScannerProps {
 }
 
 export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
-  const [hasPermission, setHasPermission] = useState(false);
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const { toast } = useToast();
+
+  const requestCameraPermission = async () => {
+    try {
+      setIsRequestingPermission(true);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+      });
+
+      // Stop the stream immediately as QrReader will request it again
+      stream.getTracks().forEach(track => track.stop());
+
+      setHasPermission(true);
+      setIsRequestingPermission(false);
+    } catch (error) {
+      console.error('Camera permission error:', error);
+      setHasPermission(false);
+      setIsRequestingPermission(false);
+
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError') {
+          toast({
+            title: 'Camera Access Denied',
+            description: 'Please allow camera access in your browser settings to scan QR codes.',
+            variant: 'error',
+          });
+        } else if (error.name === 'NotFoundError') {
+          toast({
+            title: 'Camera Not Found',
+            description: 'No camera device was found on your device.',
+            variant: 'error',
+          });
+        }
+      }
+    }
+  };
 
   useEffect(() => {
-    if (isOpen) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true })
-        .then(() => setHasPermission(true))
-        .catch(() => setHasPermission(false));
+    if (isOpen && hasPermission === null) {
+      requestCameraPermission();
     }
   }, [isOpen]);
 
@@ -78,21 +113,25 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-sm text-text-secondary">
-                  Camera permission is required to scan QR codes
+                <Camera className="h-12 w-12 mx-auto mb-4 text-text-secondary" />
+                <p className="text-sm text-text-secondary mb-4">
+                  {isRequestingPermission
+                    ? 'Requesting camera access...'
+                    : 'Camera permission is required to scan QR codes'}
                 </p>
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={() => {
-                    navigator.mediaDevices
-                      .getUserMedia({ video: true })
-                      .then(() => setHasPermission(true))
-                      .catch(() => setHasPermission(false));
-                  }}
-                >
-                  Allow Camera Access
-                </Button>
+                {!isRequestingPermission && !hasPermission && (
+                  <Button
+                    variant="outline"
+                    className="mt-4"
+                    onClick={requestCameraPermission}
+                    disabled={isRequestingPermission}
+                  >
+                    {isRequestingPermission ? (
+                      <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                    ) : null}
+                    Allow Camera Access
+                  </Button>
+                )}
               </div>
             )}
           </div>
