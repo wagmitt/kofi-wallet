@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useMemo, useState } from 'react';
+import { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 
 export type WheelSection = {
   points: number;
@@ -28,9 +28,9 @@ export default function LotteryWheel({
   const wheelRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const [isSlowing, setIsSlowing] = useState(false);
-  const rotationRef = useRef(0); // Use ref instead of state for rotation
+  const rotationRef = useRef(0);
   const startTimeRef = useRef<number | null>(null);
-  const speedRef = useRef(360); // degrees per second
+  const speedRef = useRef(360);
   const targetRotationRef = useRef<number | null>(null);
 
   // Calculate rotation angles for each section with useMemo to prevent recalculations
@@ -63,142 +63,208 @@ export default function LotteryWheel({
     }
   };
 
-  // Handle winning amount changes - start the slowing down sequence
-  useEffect(() => {
-    const startSlowingDown = (targetRotation: number) => {
-      console.log('Starting slowing down sequence to', targetRotation);
+  // Spinning animation callback
+  const animateSpinning = useCallback(
+    (time: number) => {
+      if (!startTimeRef.current) startTimeRef.current = time;
+      const elapsed = time - startTimeRef.current;
+      startTimeRef.current = time;
 
-      // Don't cancel the animation immediately
-      const totalAnimationTime = 8000; // 8 seconds for smooth deceleration
-      const startTime = performance.now();
-      const startRotation = rotationRef.current;
-      const startSpeed = Math.max(speedRef.current, 360); // Ensure minimum speed before slowing
+      // Calculate new rotation based on current speed
+      rotationRef.current = rotationRef.current - (speedRef.current * elapsed) / 1000;
+
+      // Apply rotation to the wheel
+      if (wheelRef.current) {
+        wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
+      }
+
+      // Continue animation if still spinning and not slowing down
+      if (isSpinning && !isSlowing && !targetRotationRef.current) {
+        animationRef.current = requestAnimationFrame(animateSpinning);
+      }
+    },
+    [isSpinning, isSlowing]
+  );
+
+  // Reset wheel for new spin
+  const resetWheel = useCallback(() => {
+    console.log('Resetting wheel state');
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    setIsSlowing(false);
+    targetRotationRef.current = null;
+    speedRef.current = 360;
+    startTimeRef.current = null;
+    rotationRef.current = 0; // Reset rotation to 0
+
+    // Reset wheel position visually
+    if (wheelRef.current) {
+      wheelRef.current.style.transform = `rotate(0deg)`;
+    }
+  }, []);
+
+  // Start spinning animation
+  const startSpinning = useCallback(() => {
+    console.log('Starting spinning animation');
+
+    // Reset states for new spin
+    setIsSlowing(false);
+    targetRotationRef.current = null;
+    speedRef.current = 360; // Reset to full speed
+
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+
+    startTimeRef.current = performance.now();
+    animationRef.current = requestAnimationFrame(animateSpinning);
+  }, [animateSpinning]);
+
+  // Slowing down animation callback
+  const animateSlowingDown = useCallback(
+    (
+      time: number,
+      startTime: number,
+      startRotation: number,
+      startSpeed: number,
+      targetRotation: number
+    ) => {
+      console.log('animateSlowingDown called with:', {
+        currentRotation: rotationRef.current,
+        targetRotation,
+        startRotation,
+        time: time - startTime,
+        isSlowing,
+      });
+
+      const elapsed = time - startTime;
+      const progress = Math.min(elapsed / 8000, 1); // 8 seconds total animation time
+      const easedProgress = 1 - Math.pow(1 - progress, 4); // easeOutQuart
+
+      // Gradually reduce speed with a minimum threshold
+      speedRef.current = Math.max(startSpeed * (1 - easedProgress), 10);
+
+      // Calculate new rotation with enhanced easing
       const rotationDifference = targetRotation - startRotation;
+      rotationRef.current = startRotation + rotationDifference * easedProgress;
 
-      // Enhanced easing function for smoother deceleration
-      const easeOutQuart = (t: number) => {
-        const t1 = t - 1;
-        return 1 - t1 * t1 * t1 * t1;
-      };
+      console.log('Animation progress:', {
+        progress,
+        currentRotation: rotationRef.current,
+        speed: speedRef.current,
+        isSlowing,
+      });
 
-      const animate = (time: number) => {
-        const elapsed = time - startTime;
-        const progress = Math.min(elapsed / totalAnimationTime, 1);
-        const easedProgress = easeOutQuart(progress);
+      if (wheelRef.current) {
+        wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
+      }
 
-        // Gradually reduce speed with a minimum threshold
-        speedRef.current = Math.max(startSpeed * (1 - easedProgress), 10);
+      if (progress < 1) {
+        // Store the animation frame reference
+        animationRef.current = requestAnimationFrame(t =>
+          animateSlowingDown(t, startTime, startRotation, startSpeed, targetRotation)
+        );
+      } else {
+        console.log('Slowing down complete, final rotation:', rotationRef.current);
+        setIsSlowing(false);
+        speedRef.current = 0;
+        animationRef.current = null;
 
-        // Calculate new rotation with enhanced easing
-        rotationRef.current = startRotation + rotationDifference * easedProgress;
-
-        if (wheelRef.current) {
-          wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
-        }
-
-        if (progress < 1) {
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          console.log('Slowing down complete, final rotation:', rotationRef.current);
-          setIsSlowing(false);
-          speedRef.current = 0;
-
-          if (winningAmount) {
-            const winningSection = sections.find(
-              section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
-            );
-            if (winningSection) {
-              onSpinComplete(winningSection);
-            }
+        if (winningAmount) {
+          const winningSection = sections.find(
+            section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
+          );
+          if (winningSection) {
+            onSpinComplete(winningSection);
           }
         }
-      };
+      }
+    },
+    [winningAmount, sections, onSpinComplete, isSlowing]
+  );
 
-      // Start the slowing down animation in the next frame
-      requestAnimationFrame(() => {
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
-        }
-        animationRef.current = requestAnimationFrame(animate);
+  // Start slowing down sequence
+  const startSlowingDown = useCallback(
+    (targetRotation: number) => {
+      console.log(
+        'Starting slowing down sequence to',
+        targetRotation,
+        'current rotation:',
+        rotationRef.current
+      );
+      console.log('Current state - isSpinning:', isSpinning, 'isSlowing:', isSlowing);
+
+      const startTime = performance.now();
+      const startRotation = rotationRef.current;
+      const startSpeed = Math.max(speedRef.current, 360);
+
+      if (animationRef.current) {
+        console.log('Cancelling existing animation frame');
+        cancelAnimationFrame(animationRef.current);
+      }
+
+      console.log('Requesting new animation frame for slowing down');
+      requestAnimationFrame(time => {
+        console.log('Animation frame callback triggered');
+        animateSlowingDown(time, startTime, startRotation, startSpeed, targetRotation);
       });
-    };
+    },
+    [animateSlowingDown]
+  );
+
+  // Handle winning amount changes
+  const handleWinningAmount = useCallback(() => {
+    console.log('handleWinningAmount called with:', {
+      winningAmount,
+      isSpinning,
+      hasWheel: !!wheelRef.current,
+      sections: sections.length,
+    });
 
     if (winningAmount !== null && wheelRef.current && isSpinning) {
-      console.log('🚀 | useEffect | winningAmount:', winningAmount);
-      console.log('🚀 | useEffect | sections:', sections);
-      console.log('Winning amount received, planning stop sequence:', winningAmount);
-
-      // Find the winning section based on the amount
       const winningSection = sections.find(
         section => Math.abs(parseFloat(section.label) - parseFloat(winningAmount)) < 0.0001
       );
 
       if (winningSection) {
-        console.log('🚀 | useEffect | winningSection:', winningSection);
         console.log('Found winning section:', winningSection);
+
+        // Set slowing state before calculating target
         setIsSlowing(true);
 
-        // Calculate final position
         const sectionIndex = sections.indexOf(winningSection);
         const targetAngle = sectionsWithAngles[sectionIndex].midAngle;
-        console.log('Target section angle:', targetAngle);
+        console.log('Target angle:', targetAngle);
 
-        // Calculate how many full rotations to add for a nice effect
         const currentFullRotations = Math.floor(Math.abs(rotationRef.current) / 360);
-        const additionalRotations = Math.max(5, currentFullRotations + 3); // Ensure at least 5 full rotations
-
-        // Calculate the final rotation with added buffer
+        const additionalRotations = Math.max(5, currentFullRotations + 3);
         const targetRotation = -(additionalRotations * 360 + ((targetAngle - 270 + 360) % 360));
+
+        console.log('Calculated target rotation:', targetRotation);
         targetRotationRef.current = targetRotation;
 
-        // Remove the delay and start slowing down immediately
-        startSlowingDown(targetRotation);
+        // Ensure we're calling startSlowingDown after setting the target
+        setTimeout(() => {
+          console.log('Triggering slow down with target:', targetRotation);
+          startSlowingDown(targetRotation);
+        }, 0);
       } else {
         console.warn('No matching section found for winning amount:', winningAmount);
       }
     }
-  }, [winningAmount, sections, sectionsWithAngles, isSpinning, onSpinComplete]);
+  }, [winningAmount, sections, sectionsWithAngles, isSpinning, startSlowingDown]);
 
-  // Start or stop spinning animation based on isSpinning prop
+  // Start spinning when isSpinning becomes true
   useEffect(() => {
-    // Start spinning animation
-    const startSpinning = () => {
-      console.log('Starting spinning animation');
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+    console.log('Spin effect triggered - isSpinning:', isSpinning, 'isSlowing:', isSlowing);
 
-      startTimeRef.current = performance.now();
-      speedRef.current = 360; // Reset to full speed
-      targetRotationRef.current = null; // Clear any previous target
-
-      const animate = (time: number) => {
-        if (!startTimeRef.current) startTimeRef.current = time;
-        const elapsed = time - startTimeRef.current;
-        startTimeRef.current = time;
-
-        // Calculate new rotation based on current speed
-        rotationRef.current = rotationRef.current - (speedRef.current * elapsed) / 1000;
-
-        // Apply rotation to the wheel
-        if (wheelRef.current) {
-          wheelRef.current.style.transform = `rotate(${rotationRef.current}deg)`;
-        }
-
-        // Continue animation if still spinning
-        if (isSpinning && !isSlowing) {
-          animationRef.current = requestAnimationFrame(animate);
-        }
-      };
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    console.log('isSpinning changed:', isSpinning);
     if (isSpinning && !isSlowing) {
-      // Start spinning animation
+      // Only reset and start spinning if we're not in the slowing down phase
+      resetWheel(); // Reset wheel state when spinning starts
       startSpinning();
     } else if (!isSpinning) {
-      // Stop spinning animation
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
@@ -206,13 +272,23 @@ export default function LotteryWheel({
     }
 
     return () => {
-      // Cleanup
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = null;
       }
     };
-  }, [isSpinning, isSlowing]);
+  }, [isSpinning, isSlowing, startSpinning, resetWheel]);
+
+  // Handle winning amount changes
+  useEffect(() => {
+    console.log('Winning amount effect triggered');
+    if (winningAmount === null && !isSlowing) {
+      // Only reset if we're not in the slowing down phase
+      resetWheel();
+    } else if (winningAmount !== null) {
+      handleWinningAmount();
+    }
+  }, [handleWinningAmount, winningAmount, resetWheel, isSlowing]);
 
   return (
     <div className="relative w-full max-w-[400px] aspect-square mx-auto">
