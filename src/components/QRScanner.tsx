@@ -83,10 +83,8 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
                   constraints={{
                     facingMode: 'environment',
                   }}
-                  className="w-full h-full"
-                  style={{
-                    width: '100%',
-                    height: '100%',
+                  classNames={{
+                    container: 'w-full h-full',
                   }}
                 />
                 <div className="absolute inset-0 border-[3px] border-text-tertiary/30 rounded-lg m-12 pointer-events-none" />
