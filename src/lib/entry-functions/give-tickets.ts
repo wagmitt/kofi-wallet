@@ -23,7 +23,7 @@ export const giveTickets = (args?: GiveTicketsArguments): InputTransactionData =
   // Convert the amount to a string with fixed precision to avoid floating point issues
   const payload = createEntryPayload(KOFI_LOTTERY_ABI, {
     function: 'admin_add_tickets',
-    functionArguments: [address, amount], // pot number
+    functionArguments: [address, amount],
     typeArguments: [],
   });
 

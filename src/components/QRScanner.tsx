@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Camera } from 'lucide-react';
@@ -30,8 +30,18 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
         setHasPermission(false);
         toast({
           title: 'Camera Access Denied',
-          description: 'Please allow camera access in your browser settings to scan QR codes.',
+          description: (
+            <div className="space-y-2">
+              <p>To enable camera access:</p>
+              <ol className="list-decimal pl-4 text-sm">
+                <li>Click the camera icon in your browser&apos;s address bar</li>
+                <li>Select &quot;Allow&quot; for camera access</li>
+                <li>Refresh the page</li>
+              </ol>
+            </div>
+          ),
           variant: 'error',
+          duration: 10000,
         });
       } else {
         toast({
@@ -40,12 +50,6 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
           variant: 'error',
         });
       }
-    } else {
-      toast({
-        title: 'Scanner Error',
-        description: 'An unknown error occurred while scanning.',
-        variant: 'error',
-      });
     }
   };
 
@@ -79,9 +83,10 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
                   constraints={{
                     facingMode: 'environment',
                   }}
-                  classNames={{
-                    container: 'w-full h-full',
-                    video: 'w-full h-full object-cover',
+                  className="w-full h-full"
+                  style={{
+                    width: '100%',
+                    height: '100%',
                   }}
                 />
                 <div className="absolute inset-0 border-[3px] border-text-tertiary/30 rounded-lg m-12 pointer-events-none" />

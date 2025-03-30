@@ -18,6 +18,7 @@ export function MoreDropdown() {
   const { submitTransaction } = useTransaction();
 
   const handleGiveTickets = async (address: string) => {
+    console.log('🚀 | handleGiveTickets | address:', address);
     try {
       // Validate the address format
       if (!address.startsWith('0x') || address.length !== 66) {
@@ -28,9 +29,11 @@ export function MoreDropdown() {
         address: address as `0x${string}`,
         amount: 1,
       });
+      console.log('🚀 | handleGiveTickets | transaction:', transaction);
 
       await submitTransaction(transaction);
 
+      console.log('🚀 | handleGiveTickets | submitTransaction:', submitTransaction);
       toast({
         title: 'Success',
         description: 'Successfully gave 1 ticket!',
