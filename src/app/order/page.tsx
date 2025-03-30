@@ -288,6 +288,7 @@ export default function OrderPage() {
         <div className="sticky bottom-[68px] left-0 right-0 bg-background-primary border-t border-border-alpha-light px-4 py-3">
           <Button
             onClick={goToCheckout}
+            variant="default"
             className="w-full py-5 text-base rounded-xl bg-button-primary text-text-dark hover:bg-opacity-90"
             disabled={cart.length === 0}
           >
