@@ -12,12 +12,15 @@ import { ConnectWithGoogle } from '@/components/ConnectWithGoogle';
 import { LoginView } from '@/components/LoginView';
 import { BottomNav } from '@/components/BottomNav';
 import { MoreDropdown } from '@/components/MoreDropdown';
+import { aptosClient } from '@/lib/utils/aptosClient';
+import { pay } from '@/lib/entry-functions/pay';
+import { Serializer } from '@aptos-labs/ts-sdk';
 
 export default function WalletPage() {
   const [showSendForm, setShowSendForm] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { account } = useWallet();
+  const { account, signTransaction } = useWallet();
   const { balances, refetch, kofiTransactions, isLoadingKofi } = useUserData();
   const { toast } = useToast();
 
@@ -74,26 +77,61 @@ export default function WalletPage() {
     return `${months[date.getMonth()]} ${date.getDate()}, ${timeString}`;
   };
 
-  // Convert input amount to blockchain format (multiply by 10^8)
-  const getBlockchainAmount = (inputAmount: string): string => {
-    try {
-      const [whole, decimal = ''] = inputAmount.split('.');
-      const paddedDecimal = decimal.padEnd(8, '0');
-      return `${whole}${paddedDecimal}`;
-    } catch (error) {
-      console.error('Error converting amount:', error);
-      return '0';
-    }
-  };
-
   // Handle send transaction
   const handleSend = async (recipientAddress: string, amount: string) => {
+    console.log('🚀 | handleSend | amount:', amount);
     if (!account?.address) return;
 
     try {
-      setIsLoading(true);
-      const blockchainAmount = getBlockchainAmount(amount);
-      console.log('Sending amount:', blockchainAmount);
+      const aptos = aptosClient();
+      // Build the transaction
+      const transaction = await aptos.transaction.build.simple({
+        sender: account.address,
+        data: pay({ address: recipientAddress as `0x${string}`, amount: Number(amount) * 10 ** 8 })
+          .data,
+        withFeePayer: true,
+      });
+
+      // Sign the transaction with sender's key
+      const senderAuthenticator = await signTransaction({
+        transactionOrPayload: transaction,
+        asFeePayer: false,
+      });
+
+      // Serialize the transaction and authenticator using BCS
+      const serializer = new Serializer();
+      transaction.serialize(serializer);
+      senderAuthenticator.authenticator.serialize(serializer);
+      const serializedData = Buffer.from(serializer.toUint8Array()).toString('base64');
+
+      // Send to server for fee payer signing and submission
+      const response = await fetch('/api/submit-transaction', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serializedData,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to submit transaction');
+      }
+
+      const result = await response.json();
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // wait for tx to be confirmed
+      await aptos.waitForTransaction({
+        transactionHash: result.transactionHash,
+        options: {
+          waitForIndexer: true,
+          timeoutSecs: 5,
+        },
+      });
 
       toast({
         title: 'Success',

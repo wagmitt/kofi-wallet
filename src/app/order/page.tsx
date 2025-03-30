@@ -20,6 +20,8 @@ type MenuItem = {
 // Cart item type
 type CartItem = MenuItem & { quantity: number };
 
+const isTest = true;
+
 // Menu data
 const menuItems: MenuItem[] = [
   // Signature Drinks
@@ -27,14 +29,14 @@ const menuItems: MenuItem[] = [
     id: 'latte',
     name: 'Latte',
     description: 'Espresso with steamed milk',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'coffee',
   },
   {
     id: 'americano',
     name: 'Americano',
     description: 'Espresso diluted with hot water',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'coffee',
   },
 
@@ -43,7 +45,7 @@ const menuItems: MenuItem[] = [
     id: 'thai-milk-tea',
     name: 'Thai Milk Tea',
     description: 'Sweet tea with milk',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'tea',
   },
 
@@ -53,7 +55,7 @@ const menuItems: MenuItem[] = [
     name: 'Clear Matcha お抹茶',
     description:
       'fresh whisked hoshino matcha pour over water without sweetness — light and refreshing.',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'matcha',
   },
   {
@@ -61,7 +63,7 @@ const menuItems: MenuItem[] = [
     name: 'Matcha Oat Latte 抹茶オーツラテ',
     description:
       'fresh whisked hoshino matcha pour over oat milk without sweetness — rich and smooth.',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'matcha',
   },
   {
@@ -69,7 +71,7 @@ const menuItems: MenuItem[] = [
     name: 'Coconut Matcha ココナッツ抹茶',
     description:
       'fresh whisked hoshino matcha pour over fresh organic coconut water - sweet and refreshing.',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'matcha',
   },
   {
@@ -77,7 +79,7 @@ const menuItems: MenuItem[] = [
     name: 'Coconut Matcha Cloud ココナッツ抹茶雲',
     description:
       'whipped coconut matcha cream on top of fresh organic coconut water — aromatic and creamy.',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'matcha',
   },
 
@@ -86,14 +88,14 @@ const menuItems: MenuItem[] = [
     id: 'mizudashi-okuyame-matcha',
     name: 'Mizudashi Okuyame Matcha',
     description: '',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'cold-brew',
   },
   {
     id: 'mizudashi-okuyame-sencha',
     name: 'Mizudashi Okuyame Sencha',
     description: '',
-    price: 2000,
+    price: isTest ? 0.1 : 2000,
     category: 'cold-brew',
   },
 ];

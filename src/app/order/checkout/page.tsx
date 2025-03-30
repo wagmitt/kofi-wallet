@@ -9,6 +9,9 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useUserData } from '@/context/UserDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { LoginView } from '@/components/LoginView';
+import { pay } from '@/lib/entry-functions/pay';
+import { aptosClient } from '@/lib/utils/aptosClient';
+import { Serializer } from '@aptos-labs/ts-sdk';
 
 // Types
 type CartItem = {
@@ -28,7 +31,7 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
   const router = useRouter();
-  const { account } = useWallet();
+  const { account, signTransaction } = useWallet();
   const { balances, refetch } = useUserData();
   const { toast } = useToast();
 
@@ -80,11 +83,76 @@ export default function CheckoutPage() {
 
       setIsLoading(true);
 
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        const aptos = aptosClient();
+        // Build the transaction
+        const transaction = await aptos.transaction.build.simple({
+          sender: account.address,
+          data: pay({ amount: totalPrice * 10 ** 8 }).data,
+          withFeePayer: true,
+        });
 
-      // Order success
-      setIsSuccess(true);
+        // Sign the transaction with sender's key
+        let senderAuthenticator;
+        try {
+          senderAuthenticator = await signTransaction({
+            transactionOrPayload: transaction,
+            asFeePayer: false,
+          });
+
+          // Serialize the transaction and authenticator using BCS
+          const serializer = new Serializer();
+          transaction.serialize(serializer);
+          senderAuthenticator.authenticator.serialize(serializer);
+          const serializedData = Buffer.from(serializer.toUint8Array()).toString('base64');
+
+          // Send to server for fee payer signing and submission
+          const response = await fetch('/api/submit-transaction', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              serializedData,
+            }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to submit transaction');
+          }
+
+          const result = await response.json();
+
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // wait for tx to be confirmed
+          await aptos.waitForTransaction({
+            transactionHash: result.transactionHash,
+            options: {
+              waitForIndexer: true,
+              timeoutSecs: 5,
+            },
+          });
+          setIsSuccess(true);
+        } catch (error) {
+          console.error('Payment failed:', error);
+          toast({
+            variant: 'error',
+            title: 'Payment Failed',
+            description: error instanceof Error ? error.message : 'Failed to process payment',
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Order processing error:', error);
+        toast({
+          variant: 'error',
+          title: 'Error',
+          description: 'Failed to process your order. Please try again.',
+        });
+      }
 
       // Clear cart
       localStorage.removeItem('cart');
@@ -97,11 +165,6 @@ export default function CheckoutPage() {
         title: 'Order Successful',
         description: 'Your order has been placed successfully!',
       });
-
-      // Redirect to home after 2 seconds
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
     } catch (error) {
       console.error('Order processing error:', error);
       toast({
@@ -138,9 +201,6 @@ export default function CheckoutPage() {
               <Check className="h-10 w-10 text-text-dark" />
             </div>
             <h2 className="text-xl font-semibold text-text-primary">Order Successful!</h2>
-            <p className="text-text-secondary text-center">
-              Your order has been placed successfully. Redirecting to home...
-            </p>
           </div>
         ) : (
           <>

@@ -4,7 +4,7 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Dialog,
   DialogContent,
