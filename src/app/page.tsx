@@ -21,7 +21,7 @@ export default function WalletPage() {
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { account, signTransaction } = useWallet();
-  const { balances, refetch, kofiTransactions, isLoadingKofi } = useUserData();
+  const { balances, refetch, kofiTransactions, isLoadingKofi, isAdmin } = useUserData();
   const { toast } = useToast();
 
   // If no account is connected, show login view
@@ -169,7 +169,7 @@ export default function WalletPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-4 ">
+          <div className="grid grid-cols-2 gap-4 ">
             <div className="flex flex-col items-center">
               <Button
                 variant="ghost"
@@ -190,10 +190,12 @@ export default function WalletPage() {
               </Button>
               <span className="text-xs text-text-secondary mt-2">Receive</span>
             </div>
-            <div className="flex flex-col items-center">
-              <MoreDropdown />
-              <span className="text-xs text-text-secondary mt-2">More</span>
-            </div>
+            {isAdmin && (
+              <div className="flex flex-col items-center">
+                <MoreDropdown />
+                <span className="text-xs text-text-secondary mt-2">More</span>
+              </div>
+            )}
           </div>
         </div>
 

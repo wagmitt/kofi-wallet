@@ -11,6 +11,7 @@ import { QRScanner } from './QRScanner';
 import { useToast } from '@/hooks/use-toast';
 import { giveTickets } from '@/lib/entry-functions/give-tickets';
 import { useTransaction } from '@/hooks/useTransaction';
+import { useUserData } from '@/context/UserDataContext';
 
 export function MoreDropdown() {
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);

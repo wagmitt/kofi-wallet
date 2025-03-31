@@ -13,7 +13,7 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import type { TokenBalances, UserDataContextState } from '@/types';
 import { REFRESH_INTERVAL } from '@/settings';
 import { fetchKofiBalance, type Transaction } from '@/lib/graph-queries/getKofiBalance';
-
+import { isAdmin as getIsAdmin } from '@/lib/view-functions/isAdmin';
 const UserDataContext = createContext<UserDataContextState | undefined>(undefined);
 
 const INITIAL_BALANCES: TokenBalances = {
@@ -44,6 +44,7 @@ const formatAmount = (amount: string): string => {
 export function UserDataProvider({ children }: { children: ReactNode }) {
   const { connected, account } = useWallet();
   const [balances, setBalances] = useState<TokenBalances>(INITIAL_BALANCES);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [kofiTransactions, setKofiTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingKofi, setIsLoadingKofi] = useState(false);
@@ -94,6 +95,10 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
     try {
       await fetchKofiData();
+      const isAdminResponse = await getIsAdmin({
+        address: account?.address.toString() as `0x${string}`,
+      });
+      setIsAdmin(isAdminResponse.isAdmin);
       setLastRefetchTime(Date.now());
     } catch (error) {
       console.error(error);
@@ -148,6 +153,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
           kapt: null,
           stkapt: null,
         },
+        isAdmin,
         kofiTransactions,
         isLoading,
         isLoadingKofi,

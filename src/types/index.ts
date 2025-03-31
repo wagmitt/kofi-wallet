@@ -20,6 +20,7 @@ export interface UserDataContextState {
   prices: TokenPrices;
   isLoading: boolean;
   isLoadingKofi: boolean;
+  isAdmin: boolean;
   kofiTransactions: Transaction[];
   refetch: () => Promise<void>;
 }
