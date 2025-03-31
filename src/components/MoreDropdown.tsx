@@ -56,8 +56,14 @@ export function MoreDropdown() {
             <MoreVertical className="h-5 w-5 text-text-tertiary" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onClick={() => setIsQRScannerOpen(true)}>
+        <DropdownMenuContent
+          align="end"
+          className="w-48 bg-background-primary border border-border-alpha-light"
+        >
+          <DropdownMenuItem
+            className="gap-2 text-sm text-text-secondary hover:text-text-primary hover:bg-button-primary focus:bg-button-primary py-2"
+            onClick={() => setIsQRScannerOpen(true)}
+          >
             <Ticket className="mr-2 h-4 w-4" />
             Give Tickets
           </DropdownMenuItem>

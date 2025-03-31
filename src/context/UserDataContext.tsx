@@ -118,8 +118,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       const isAdminResponse = await getIsAdmin({
         address: account?.address.toString() as `0x${string}`,
       });
-      console.log('🚀 | refetch | isAdminResponse:', isAdminResponse);
-      setIsAdmin(isAdminResponse);
+      setIsAdmin(isAdminResponse.isAdmin);
       setLastRefetchTime(Date.now());
     } catch (error) {
       console.error(error);
