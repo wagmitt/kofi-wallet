@@ -10,12 +10,12 @@ import { BottomNav } from '@/components/BottomNav';
 import LotteryWheel, { WheelSection } from '@/components/LotteryWheel';
 import { spin } from '@/lib/entry-functions/spin';
 import { getPotStats, PotStats } from '@/lib/view-functions/getPotStats';
-import { getUserLotteryTickets } from '@/lib/view-functions/getUserLotteryTickets';
 import { aptosClient } from '@/lib/utils/aptosClient';
 import { useTransaction } from '@/hooks/useTransaction';
 import { Serializer } from '@aptos-labs/ts-sdk';
 import { getLotteryWinnings } from '@/lib/view-functions/getLotteryWinnings';
 import { useToast } from '@/hooks/use-toast';
+import { useUserData } from '@/context/UserDataContext';
 
 const DECIMALS = 8;
 
@@ -24,26 +24,19 @@ export default function LotteryPage() {
   const [winningAmount, setWinningAmount] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [potStats, setPotStats] = useState<PotStats | null>(null);
-  const [userTickets, setUserTickets] = useState<number>(0);
   const router = useRouter();
   const { account, signTransaction } = useWallet();
   const { submitTransaction } = useTransaction();
   const { toast } = useToast();
+  const { lotteryTickets, refetch } = useUserData();
 
-  // Fetch pot stats and user tickets on mount
+  // Fetch pot stats on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
         const stats = await getPotStats();
         setPotStats(stats);
-
-        // Fetch user tickets if wallet is connected
-        if (account?.address) {
-          const userAddress = account.address.toString() as `0x${string}`;
-          const tickets = await getUserLotteryTickets({ userAddress });
-          setUserTickets(Number(tickets.amount));
-        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -51,23 +44,14 @@ export default function LotteryPage() {
       }
     };
     fetchData();
-  }, [account]);
+  }, []);
 
-  // Re-fetch user tickets after spinning
+  // Re-fetch user data after spinning
   useEffect(() => {
-    const updateUserData = async () => {
-      if (!isSpinning && account?.address) {
-        try {
-          const userAddress = account.address.toString() as `0x${string}`;
-          const tickets = await getUserLotteryTickets({ userAddress });
-          setUserTickets(Number(tickets.amount));
-        } catch (error) {
-          console.error('Error fetching user tickets:', error);
-        }
-      }
-    };
-    updateUserData();
-  }, [isSpinning, account]);
+    if (!isSpinning) {
+      refetch();
+    }
+  }, [isSpinning, refetch]);
 
   // Convert pot stats to wheel sections
   const wheelSections: WheelSection[] = useMemo(() => {
@@ -98,7 +82,7 @@ export default function LotteryPage() {
 
   // Handle spin start
   const handleSpinStart = async () => {
-    if (!account || userTickets <= 0) {
+    if (!account || lotteryTickets <= 0) {
       toast({
         variant: 'error',
         title: 'Error',
@@ -169,7 +153,6 @@ export default function LotteryPage() {
 
           // Set the winning amount to trigger wheel to stop at correct position
           setWinningAmount(amount);
-          setUserTickets(prev => prev - 1);
         } catch {
           // User rejected the transaction
           setIsSpinning(false);
@@ -249,7 +232,7 @@ export default function LotteryPage() {
         </div>
         {/* Chances Left */}
         <div className="mb-8 text-center">
-          <div className="text-2xl font-bold text-text-primary mb-2">{userTickets}</div>
+          <div className="text-2xl font-bold text-text-primary mb-2">{lotteryTickets}</div>
           <div className="text-sm text-text-shallow">Chances Left</div>
         </div>
 
@@ -257,7 +240,7 @@ export default function LotteryPage() {
         <div className="w-full flex justify-center">
           <Button
             onClick={handleSpinStart}
-            disabled={isSpinning || userTickets <= 0}
+            disabled={isSpinning || lotteryTickets <= 0}
             className="relative w-[200px] py-6 text-lg font-semibold rounded-xl bg-button-primary text-text-dark hover:bg-opacity-90 disabled:opacity-50 shadow-[0_0_20px_rgba(141,198,63,0.3)]"
           >
             {isSpinning ? 'Spinning...' : 'Spin!'}

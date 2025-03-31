@@ -14,6 +14,8 @@ import type { TokenBalances, UserDataContextState } from '@/types';
 import { REFRESH_INTERVAL } from '@/settings';
 import { fetchKofiBalance, type Transaction } from '@/lib/graph-queries/getKofiBalance';
 import { isAdmin as getIsAdmin } from '@/lib/view-functions/isAdmin';
+import { getUserLotteryTickets } from '@/lib/view-functions/getUserLotteryTickets';
+
 const UserDataContext = createContext<UserDataContextState | undefined>(undefined);
 
 const INITIAL_BALANCES: TokenBalances = {
@@ -46,6 +48,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
   const [balances, setBalances] = useState<TokenBalances>(INITIAL_BALANCES);
   const [isAdmin, setIsAdmin] = useState(false);
   const [kofiTransactions, setKofiTransactions] = useState<Transaction[]>([]);
+  const [lotteryTickets, setLotteryTickets] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingKofi, setIsLoadingKofi] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
@@ -83,6 +86,23 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     }
   }, [connected, account?.address]);
 
+  // Fetch lottery tickets
+  const fetchLotteryTickets = useCallback(async () => {
+    if (!connected || !account?.address) {
+      setLotteryTickets(0);
+      return;
+    }
+
+    try {
+      const userAddress = account.address.toString() as `0x${string}`;
+      const tickets = await getUserLotteryTickets({ userAddress });
+      setLotteryTickets(Number(tickets.amount));
+    } catch (error) {
+      console.error('Error fetching lottery tickets:', error);
+      setLotteryTickets(0);
+    }
+  }, [connected, account?.address]);
+
   const refetch = useCallback(async () => {
     const now = Date.now();
 
@@ -94,11 +114,12 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
 
     try {
-      await fetchKofiData();
+      await Promise.all([fetchKofiData(), fetchLotteryTickets()]);
       const isAdminResponse = await getIsAdmin({
         address: account?.address.toString() as `0x${string}`,
       });
-      setIsAdmin(isAdminResponse.isAdmin);
+      console.log('🚀 | refetch | isAdminResponse:', isAdminResponse);
+      setIsAdmin(isAdminResponse);
       setLastRefetchTime(Date.now());
     } catch (error) {
       console.error(error);
@@ -106,7 +127,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setIsRefetching(false);
     }
-  }, [fetchKofiData, isRefetching, lastRefetchTime, account?.address]);
+  }, [fetchKofiData, fetchLotteryTickets, isRefetching, lastRefetchTime, account?.address]);
 
   // Initial data load when wallet connects
   useEffect(() => {
@@ -115,10 +136,10 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
       // Fetch wallet-dependent data if connected
       if (connected && account?.address) {
-        fetchKofiData();
+        Promise.all([fetchKofiData(), fetchLotteryTickets()]);
       }
     }
-  }, [connected, account?.address, fetchKofiData]);
+  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets]);
 
   // Fetch data when wallet connection changes
   useEffect(() => {
@@ -128,6 +149,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       // Reset wallet-dependent data when disconnected
       setBalances(INITIAL_BALANCES);
       setKofiTransactions([]);
+      setLotteryTickets(0);
     }
   }, [connected, account?.address, refetch]);
 
@@ -136,13 +158,15 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     // Set up wallet-dependent data refresh only when connected
     let dataInterval: NodeJS.Timeout | null = null;
     if (connected && account?.address) {
-      dataInterval = setInterval(fetchKofiData, REFRESH_INTERVAL);
+      dataInterval = setInterval(() => {
+        Promise.all([fetchKofiData(), fetchLotteryTickets()]);
+      }, REFRESH_INTERVAL);
     }
 
     return () => {
       if (dataInterval) clearInterval(dataInterval);
     };
-  }, [connected, account?.address, fetchKofiData]);
+  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets]);
 
   return (
     <UserDataContext.Provider
@@ -155,6 +179,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         },
         isAdmin,
         kofiTransactions,
+        lotteryTickets,
         isLoading,
         isLoadingKofi,
         refetch,

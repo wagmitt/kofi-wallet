@@ -169,7 +169,7 @@ export default function WalletPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-4 ">
+          <div className="grid grid-flow-col-dense gap-4 ">
             <div className="flex flex-col items-center">
               <Button
                 variant="ghost"

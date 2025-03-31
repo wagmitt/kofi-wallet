@@ -18,9 +18,9 @@ export const isAdmin = async (args: IsAdminArguments): Promise<IsAdminResponse> 
       .view.is_admin({
         functionArguments: [address],
         typeArguments: [],
-      })) as unknown as IsAdminResponse[];
+      })) as unknown as boolean[];
 
-    return payload[0];
+    return { isAdmin: payload[0] };
   } catch (error) {
     console.error('Error fetching pot stats:', error);
     throw error;

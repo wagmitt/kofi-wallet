@@ -22,5 +22,6 @@ export interface UserDataContextState {
   isLoadingKofi: boolean;
   isAdmin: boolean;
   kofiTransactions: Transaction[];
+  lotteryTickets: number;
   refetch: () => Promise<void>;
 }
