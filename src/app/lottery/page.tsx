@@ -9,7 +9,6 @@ import { LoginView } from '@/components/LoginView';
 import { BottomNav } from '@/components/BottomNav';
 import LotteryWheel, { WheelSection } from '@/components/LotteryWheel';
 import { spin } from '@/lib/entry-functions/spin';
-import { getPotStats, PotStats } from '@/lib/view-functions/getPotStats';
 import { aptosClient } from '@/lib/utils/aptosClient';
 import { useTransaction } from '@/hooks/useTransaction';
 import { Serializer } from '@aptos-labs/ts-sdk';
@@ -23,35 +22,18 @@ export default function LotteryPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [winningAmount, setWinningAmount] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [potStats, setPotStats] = useState<PotStats | null>(null);
   const router = useRouter();
   const { account, signTransaction } = useWallet();
   const { submitTransaction } = useTransaction();
   const { toast } = useToast();
-  const { lotteryTickets, refetch } = useUserData();
-
-  // Fetch pot stats on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const stats = await getPotStats();
-        setPotStats(stats);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const { lotteryTickets, potStats } = useUserData();
 
   // Re-fetch user data after spinning
   useEffect(() => {
-    if (!isSpinning) {
-      refetch();
+    if (potStats) {
+      setIsLoading(false);
     }
-  }, [isSpinning, refetch]);
+  }, [potStats, setIsLoading]);
 
   // Convert pot stats to wheel sections
   const wheelSections: WheelSection[] = useMemo(() => {

@@ -1,4 +1,5 @@
 import type { Transaction } from '@/lib/graph-queries/getKofiBalance';
+import { PotStats } from '@/lib/view-functions/getPotStats';
 
 export type BigNumber = number | string;
 
@@ -23,5 +24,6 @@ export interface UserDataContextState {
   isAdmin: boolean;
   kofiTransactions: Transaction[];
   lotteryTickets: number;
+  potStats: PotStats | null;
   refetch: () => Promise<void>;
 }

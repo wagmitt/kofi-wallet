@@ -15,6 +15,7 @@ import { REFRESH_INTERVAL } from '@/settings';
 import { fetchKofiBalance, type Transaction } from '@/lib/graph-queries/getKofiBalance';
 import { isAdmin as getIsAdmin } from '@/lib/view-functions/isAdmin';
 import { getUserLotteryTickets } from '@/lib/view-functions/getUserLotteryTickets';
+import { getPotStats, PotStats } from '@/lib/view-functions/getPotStats';
 
 const UserDataContext = createContext<UserDataContextState | undefined>(undefined);
 
@@ -53,6 +54,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
   const [isLoadingKofi, setIsLoadingKofi] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [lastRefetchTime, setLastRefetchTime] = useState(0);
+  const [potStats, setPotStats] = useState<PotStats | null>(null);
   const initialFetchRef = useRef(false);
 
   // Minimum time between refetch calls in milliseconds (to prevent rapid successive calls)
@@ -103,6 +105,11 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     }
   }, [connected, account?.address]);
 
+  const fetchPotStats = useCallback(async () => {
+    const potStats = await getPotStats();
+    setPotStats(potStats);
+  }, []);
+
   const refetch = useCallback(async () => {
     const now = Date.now();
 
@@ -114,7 +121,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
 
     try {
-      await Promise.all([fetchKofiData(), fetchLotteryTickets()]);
+      await Promise.all([fetchKofiData(), fetchLotteryTickets(), fetchPotStats()]);
       const isAdminResponse = await getIsAdmin({
         address: account?.address.toString() as `0x${string}`,
       });
@@ -126,7 +133,14 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setIsRefetching(false);
     }
-  }, [fetchKofiData, fetchLotteryTickets, isRefetching, lastRefetchTime, account?.address]);
+  }, [
+    fetchKofiData,
+    fetchLotteryTickets,
+    fetchPotStats,
+    isRefetching,
+    lastRefetchTime,
+    account?.address,
+  ]);
 
   // Initial data load when wallet connects
   useEffect(() => {
@@ -135,10 +149,10 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
 
       // Fetch wallet-dependent data if connected
       if (connected && account?.address) {
-        Promise.all([fetchKofiData(), fetchLotteryTickets()]);
+        Promise.all([fetchKofiData(), fetchLotteryTickets(), fetchPotStats()]);
       }
     }
-  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets]);
+  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets, fetchPotStats]);
 
   // Fetch data when wallet connection changes
   useEffect(() => {
@@ -158,14 +172,14 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
     let dataInterval: NodeJS.Timeout | null = null;
     if (connected && account?.address) {
       dataInterval = setInterval(() => {
-        Promise.all([fetchKofiData(), fetchLotteryTickets()]);
+        Promise.all([fetchKofiData()]);
       }, REFRESH_INTERVAL);
     }
 
     return () => {
       if (dataInterval) clearInterval(dataInterval);
     };
-  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets]);
+  }, [connected, account?.address, fetchKofiData, fetchLotteryTickets, fetchPotStats]);
 
   return (
     <UserDataContext.Provider
@@ -179,6 +193,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
         isAdmin,
         kofiTransactions,
         lotteryTickets,
+        potStats,
         isLoading,
         isLoadingKofi,
         refetch,

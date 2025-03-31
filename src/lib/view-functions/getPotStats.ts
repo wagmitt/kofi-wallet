@@ -39,7 +39,6 @@ export const getPotStats = async (args?: SpinArguments): Promise<PotStats> => {
         functionArguments: [potNumber],
         typeArguments: [],
       })) as unknown as PotStats[];
-    console.log('🚀 | payload | payload:', payload[0]);
 
     return payload[0];
   } catch (error) {
