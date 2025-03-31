@@ -106,7 +106,7 @@ export function UserDataProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setIsRefetching(false);
     }
-  }, [fetchKofiData, isRefetching, lastRefetchTime]);
+  }, [fetchKofiData, isRefetching, lastRefetchTime, account?.address]);
 
   // Initial data load when wallet connects
   useEffect(() => {
