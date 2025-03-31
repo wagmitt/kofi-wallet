@@ -101,7 +101,7 @@ export default function LotteryPage() {
         // Build the transaction
         const transaction = await aptos.transaction.build.simple({
           sender: account.address,
-          data: spin({ potNumber: 1, amount: 1 }).data,
+          data: spin({ potNumber: 2, amount: 1 }).data,
           withFeePayer: true,
         });
 
