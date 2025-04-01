@@ -32,7 +32,6 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string>('');
-  const [finalBalance, setFinalBalance] = useState<number>(0);
   const router = useRouter();
   const { account, signTransaction } = useWallet();
   const { balances, refetch } = useUserData();
@@ -138,7 +137,6 @@ export default function CheckoutPage() {
             },
           });
           setTransactionHash(result.transactionHash);
-          setFinalBalance(parseFloat(balances.kofi || '0') - totalPrice);
           setIsSuccess(true);
         } catch (error) {
           console.error('Payment failed:', error);
