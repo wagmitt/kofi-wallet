@@ -12,6 +12,7 @@ import { LoginView } from '@/components/LoginView';
 import { pay } from '@/lib/entry-functions/pay';
 import { aptosClient } from '@/lib/utils/aptosClient';
 import { Serializer } from '@aptos-labs/ts-sdk';
+import Link from 'next/link';
 
 // Types
 type CartItem = {
@@ -30,6 +31,8 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasInsufficientBalance, setHasInsufficientBalance] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string>('');
+  const [finalBalance, setFinalBalance] = useState<number>(0);
   const router = useRouter();
   const { account, signTransaction } = useWallet();
   const { balances, refetch } = useUserData();
@@ -134,6 +137,8 @@ export default function CheckoutPage() {
               timeoutSecs: 5,
             },
           });
+          setTransactionHash(result.transactionHash);
+          setFinalBalance(parseFloat(balances.kofi || '0') - totalPrice);
           setIsSuccess(true);
         } catch (error) {
           console.error('Payment failed:', error);
@@ -196,11 +201,58 @@ export default function CheckoutPage() {
       {/* Main Content */}
       <div className="flex-1 p-4">
         {isSuccess ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <div className="h-16 w-16 rounded-full bg-button-primary flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center space-y-6 py-8">
+            <div className="h-16 w-16 rounded-full bg-button-primary flex items-center justify-center animate-pulse">
               <Check className="h-10 w-10 text-text-dark" />
             </div>
             <h2 className="text-xl font-semibold text-text-primary">Order Successful!</h2>
+
+            {/* Order Summary */}
+            <Card className="w-full bg-background-component-primary border-border-alpha-light">
+              <CardContent className="p-4 space-y-3">
+                <h3 className="font-semibold text-text-primary">Order Summary</h3>
+                {cart.map(item => (
+                  <div key={item.id} className="flex justify-between">
+                    <div className="flex-1">
+                      <p className="text-text-primary">
+                        {item.quantity} x {item.name}
+                      </p>
+                    </div>
+                    <p className="font-medium text-text-tertiary">
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
+                  </div>
+                ))}
+                <div className="border-t border-border-alpha-light pt-2 mt-2">
+                  <div className="flex justify-between font-semibold">
+                    <p className="text-text-primary">Total Paid</p>
+                    <p className="text-text-tertiary">{formatPrice(totalPrice)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Transaction Details */}
+            <Card className="w-full bg-background-component-primary border-border-alpha-light">
+              <CardContent className="p-4 space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-text-secondary">Transaction Hash</p>
+                  <Link
+                    href={`https://explorer.aptoslabs.com/txn/${transactionHash}?network=mainnet`}
+                    className="text-xs text-text-tertiary break-all font-mono"
+                    target="_blank"
+                  >
+                    {transactionHash}
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button
+              onClick={() => router.push('/')}
+              className="w-full bg-button-primary text-text-dark hover:bg-opacity-90 py-6"
+            >
+              Back to Home
+            </Button>
           </div>
         ) : (
           <>
