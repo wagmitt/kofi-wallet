@@ -20,7 +20,7 @@ type MenuItem = {
 // Cart item type
 type CartItem = MenuItem & { quantity: number };
 
-const isTest = true;
+const isTest = false;
 
 // Menu data
 const menuItems: MenuItem[] = [
@@ -39,7 +39,6 @@ const menuItems: MenuItem[] = [
     price: isTest ? 0.1 : 2000,
     category: 'coffee',
   },
-
   // Tea
   {
     id: 'thai-milk-tea',
@@ -48,7 +47,6 @@ const menuItems: MenuItem[] = [
     price: isTest ? 0.1 : 2000,
     category: 'tea',
   },
-
   // Matcha
   {
     id: 'clear-matcha',
@@ -57,46 +55,6 @@ const menuItems: MenuItem[] = [
       'fresh whisked hoshino matcha pour over water without sweetness — light and refreshing.',
     price: isTest ? 0.1 : 2000,
     category: 'matcha',
-  },
-  {
-    id: 'matcha-oat-latte',
-    name: 'Matcha Oat Latte 抹茶オーツラテ',
-    description:
-      'fresh whisked hoshino matcha pour over oat milk without sweetness — rich and smooth.',
-    price: isTest ? 0.1 : 2000,
-    category: 'matcha',
-  },
-  {
-    id: 'coconut-matcha',
-    name: 'Coconut Matcha ココナッツ抹茶',
-    description:
-      'fresh whisked hoshino matcha pour over fresh organic coconut water - sweet and refreshing.',
-    price: isTest ? 0.1 : 2000,
-    category: 'matcha',
-  },
-  {
-    id: 'coconut-matcha-cloud',
-    name: 'Coconut Matcha Cloud ココナッツ抹茶雲',
-    description:
-      'whipped coconut matcha cream on top of fresh organic coconut water — aromatic and creamy.',
-    price: isTest ? 0.1 : 2000,
-    category: 'matcha',
-  },
-
-  // Cold Brew
-  {
-    id: 'mizudashi-okuyame-matcha',
-    name: 'Mizudashi Okuyame Matcha',
-    description: '',
-    price: isTest ? 0.1 : 2000,
-    category: 'cold-brew',
-  },
-  {
-    id: 'mizudashi-okuyame-sencha',
-    name: 'Mizudashi Okuyame Sencha',
-    description: '',
-    price: isTest ? 0.1 : 2000,
-    category: 'cold-brew',
   },
 ];
 
