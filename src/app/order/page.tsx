@@ -29,14 +29,14 @@ const menuItems: MenuItem[] = [
     id: 'latte',
     name: 'Latte',
     description: 'Espresso with steamed milk',
-    price: isTest ? 0.1 : 2000,
+    price: isTest ? 0.1 : 1000,
     category: 'coffee',
   },
   {
     id: 'americano',
     name: 'Americano',
     description: 'Espresso diluted with hot water',
-    price: isTest ? 0.1 : 2000,
+    price: isTest ? 0.1 : 1000,
     category: 'coffee',
   },
   // Tea
@@ -44,7 +44,7 @@ const menuItems: MenuItem[] = [
     id: 'thai-milk-tea',
     name: 'Thai Milk Tea',
     description: 'Sweet tea with milk',
-    price: isTest ? 0.1 : 2000,
+    price: isTest ? 0.1 : 1000,
     category: 'tea',
   },
   // Matcha
@@ -53,7 +53,7 @@ const menuItems: MenuItem[] = [
     name: 'Clear Matcha お抹茶',
     description:
       'fresh whisked hoshino matcha pour over water without sweetness — light and refreshing.',
-    price: isTest ? 0.1 : 2000,
+    price: isTest ? 0.1 : 1000,
     category: 'matcha',
   },
 ];

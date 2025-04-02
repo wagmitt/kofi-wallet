@@ -26,7 +26,7 @@ export const getPotStats = async (args?: SpinArguments): Promise<PotStats> => {
   let { potNumber } = args || {};
 
   // default pot number
-  const defaultPotNumber = 1;
+  const defaultPotNumber = 5;
 
   if (!potNumber) {
     potNumber = defaultPotNumber;

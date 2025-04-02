@@ -84,7 +84,7 @@ export default function LotteryPage() {
         (Number(payout.points) * Number(potStats.deposit_amount)) /
         Math.pow(10, DECIMALS) /
         Number(potStats.config.max_points)
-      ).toFixed(3);
+      ).toFixed(0);
 
       return {
         points: Number(payout.points),
@@ -117,7 +117,7 @@ export default function LotteryPage() {
         // Build the transaction
         const transaction = await aptos.transaction.build.simple({
           sender: account.address,
-          data: spin({ potNumber: 2, amount: 1 }).data,
+          data: spin({ potNumber: 5, amount: 1 }).data,
           withFeePayer: true,
         });
 

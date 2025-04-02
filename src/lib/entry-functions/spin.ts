@@ -14,7 +14,7 @@ export const spin = (args?: SpinArguments): InputTransactionData => {
   let { potNumber, amount } = args || {};
 
   // default pot number
-  const defaultPotNumber = 0;
+  const defaultPotNumber = 5;
 
   if (!potNumber) {
     potNumber = defaultPotNumber;
