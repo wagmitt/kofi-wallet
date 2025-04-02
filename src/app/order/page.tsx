@@ -14,7 +14,7 @@ type MenuItem = {
   name: string;
   description: string;
   price: number;
-  category: 'tea' | 'coffee' | 'matcha' | 'cold-brew';
+  category: 'tea' | 'coffee' | 'matcha' | 'cookie' | 'cold-brew';
 };
 
 // Cart item type
@@ -56,6 +56,28 @@ const menuItems: MenuItem[] = [
     price: isTest ? 0.1 : 1000,
     category: 'matcha',
   },
+  // Cookie
+  {
+    id: 'cookie-rocky-road',
+    name: 'Rocky Road Cookie',
+    description: 'Rocky Road Cookie',
+    price: isTest ? 0.1 : 1000,
+    category: 'cookie',
+  },
+  {
+    id: 'cookie-green-tea',
+    name: 'Green Tea Cookie',
+    description: 'Green Tea Cookie',
+    price: isTest ? 0.1 : 1000,
+    category: 'cookie',
+  },
+  {
+    id: 'cookie-orange-brownie',
+    name: 'Orange Brownie',
+    description: 'Orange Brownie',
+    price: isTest ? 0.1 : 1000,
+    category: 'cookie',
+  },
 ];
 
 export default function OrderPage() {
@@ -79,7 +101,9 @@ export default function OrderPage() {
   const coffee = menuItems.filter(item => item.category === 'coffee');
   const tea = menuItems.filter(item => item.category === 'tea');
   const matcha = menuItems.filter(item => item.category === 'matcha');
-  const coldBrew = menuItems.filter(item => item.category === 'cold-brew');
+  const cookie = menuItems.filter(item => item.category === 'cookie');
+
+  // const coldBrew = menuItems.filter(item => item.category === 'cold-brew');
 
   // Add item to cart
   const addToCart = (item: MenuItem) => {
@@ -232,15 +256,25 @@ export default function OrderPage() {
           <div>{matcha.map(renderMenuItem)}</div>
         </div>
 
-        {/* Cold Brew Section */}
+        {/* Cookie Section */}
         <div className="mb-4">
+          <div className="px-4 py-2 bg-background-secondary">
+            <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
+              Cookie
+            </h2>
+          </div>
+          <div>{cookie.map(renderMenuItem)}</div>
+        </div>
+
+        {/* Cold Brew Section */}
+        {/* <div className="mb-4">
           <div className="px-4 py-2 bg-background-secondary">
             <h2 className="font-semibold text-sm uppercase tracking-wider text-text-secondary">
               Cold Brew
             </h2>
           </div>
           <div>{coldBrew.map(renderMenuItem)}</div>
-        </div>
+        </div> */}
       </div>
 
       {/* Cart Summary & Checkout Button */}
